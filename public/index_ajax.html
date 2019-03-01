@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Buttons - Payments SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- Payment SDK -->
+    <!--<script src="https://www.paypal.com/sdk/js?client-id=sb&env=sandbox"></script>-->
+    <!--<script src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&env=sandbox"></script>-->
+
+    <style>
+        /* Media query for mobile viewport */
+        @media screen and (max-width: 400px) {
+            #paypal-button-container {
+                width: 100%;
+            }
+        }
+
+        /* Media query for desktop viewport */
+        @media screen and (min-width: 400px) {
+            #paypal-button-container {
+                width: 140px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="ui menu">
+    <a class="active item" id="home">
+        <i class="home icon"></i> Home
+    </a>
+</div>
+<div class="ui raised container visible content" id="cart">
+    <h2 class="ui header">Payments SDK - Sample Test</h2>
+
+    <!-- PAYMENT FORM -->
+    <div class="ui form" id="paymentForm">
+        <div class="field">
+            <label>Payment Data</label>
+            <textarea id="paymentJson"></textarea>
+        </div>
+        <div class="field">
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+    <!-- APPROVED ORDER / REVIEW FORM -->
+    <div class="ui form" id="authForm" hidden>
+        <div class="field">
+            <label>Approved Order Data</label>
+            <div class="container fluid" id="orderData"></div>
+        </div>
+        <div class="field">
+            <input type="hidden" id="orderId"/>
+            <button class="ui primary button" id="authorize">
+                Authorize
+            </button>
+            <button class="ui button" id="cancel">
+                Discard
+            </button>
+        </div>
+        <br/><br/>
+    </div>
+
+    <!-- AUTHORIZED ORDER / CAPTURE FORM -->
+    <div class="ui form" id="captureForm" hidden>
+        <div class="field">
+            <label>Authorized Order Data</label>
+            <div class="container fluid" id="authorizationData"></div>
+        </div>
+        <div class="field">
+            <input type="hidden" id="authId"/>
+            <button class="ui primary button" id="capture">
+                Capture
+            </button>
+            <button class="ui button" id="cancel2">
+                Discard
+            </button>
+        </div>
+        <br/><br/>
+    </div>
+
+    <!-- CAPTURED AUTH / CAPTURE REVIEW -->
+    <div class="ui form" id="final" hidden>
+        <div class="field">
+            <label>Captured Authorization Data</label>
+            <div class="container fluid" id="captureData"></div>
+        </div>
+        <div class="field">
+            <input type="hidden" id="captureId"/>
+            <!--<button class="ui primary button" id="capture">-->
+            <!--Capture-->
+            <!--</button>-->
+            <button class="ui button" id="cancel3">
+                Restart
+            </button>
+        </div>
+        <br/><br/>
+    </div>
+</div>
+<script>
+
+    var url = 'https://www.paypal.com/sdk/js?' +
+        'client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq'; // +
+        '&env=sandbox' +
+        '&currency=EUR' + 
+        '&intent=authorize' + // results in 400 BAD REQUEST
+        '&components=buttons'// changing to hosted does not return a 400, but not sure what to do here
+        // '&locale-country=DE' // works
+        // '&order-commit=false' + // works
+        // '&order-vault=true' + // don't seem to be prompted with the billing agreement in pop-up.  is this working?
+        // '&order-currency=GBP' + // not sure if this is supposed to override the payload in createOrder(); does not appear to be the case
+        
+        // '&locale-lang=de' + // results in 400 BAD REQUEST
+        // '&funding-disable=credit' + // results in 400 BAD REQUEST
+        // '&card-disable=visa' + // results in 400 BAD REQUEST
+        // '&debug=true'; // works
+
+    $.ajax({
+        url: url,
+        dataType: "script",
+        cache: true
+    }).done(function () {
+
+        var paymentData = {
+            purchase_units: [{
+                amount: {
+                    value: '1.01',
+                    currency_code: 'EUR'
+                }
+            }],
+            application_context: {
+                brand_name: 'TSF Enterprises',
+                locale: "us-EN"
+            }
+        };
+
+        // set the text area with payment data
+        $("#paymentJson").val(JSON.stringify(paymentData, null, 4));
+
+        paypal.Buttons({
+            createOrder: function (data, actions) {
+
+                // CLIENT SIDE ORDER CREATE
+                return actions.order.create(
+                    JSON.parse($("#paymentJson").val())
+                );
+
+                // OR, CREATE AN ORDER HERE VIA OUR SERVER SIDE
+            },
+            onApprove: function (data, actions) {
+
+                // Get the transaction details
+                return actions.order.get().then(function (data) {
+                    // Optionally display the transaction details to the buyer
+                    console.log("actions.order.get: ", data);
+
+                    // Authorize the funds from the transaction
+                    return actions.order.authorize();
+
+                }).then(function (data) {
+
+                    // Show a success message to your buyer
+                    console.log("actions.order.capture: ", data);
+
+                    // Call our server to capture the above authorization
+                    return fetch('/rest/orders/' + data.id, {
+                        method: 'get'
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(function (json) {
+
+                        console.log("Response: ", json)
+                        // update the hidden input with the auth id
+                        $("#authId").val(json.purchase_units[0].payments.authorizations[0].id)
+
+                        // present the data on the screen
+                        console.log("Success in get: ", json);
+                        $("#authorizationData").html("<pre>" + JSON.stringify(json, null, 4) + "</pre>");
+
+
+                        // hide forms we don't need
+                        $("#paymentForm").hide();
+                        $("#authForm").hide();
+
+                        $("#captureForm").show();
+
+                    }).catch(function (error) {
+                        console.log('error in fetch: , ', error);
+                    });
+
+                }).catch(function (error) {
+                    console.log("ERROR: ", error);
+                });
+            }
+        }).render('#paypal-button-container');
+
+    });
+</script>
+<script>
+    $("#home, #cancel, #cancel2, #cancel3").click(function () {
+        /* function goes in here */
+        location.reload()
+    });
+
+    // handle the capture operation
+    $("#capture").click(function () {
+        var authId = $("#authId").val();
+        console.log("Auth ID: ", authId);
+
+        $.ajax({
+            method: 'POST',
+            url: '/rest/authorizations/' + authId + '/capture',
+            success: function(resp) {
+                // present the data on the screen
+                console.log("Success in capture: ", resp);
+                $("#captureData").html("<pre>" + JSON.stringify(resp, null, 4) + "</pre>");
+
+                $("#captureForm").hide();
+                $("#final").show();
+            },
+            error: function (error) {
+                console.log("Error in call to capture: ", error);
+            }
+        });
+    });
+</script>
+</body>
+</html>

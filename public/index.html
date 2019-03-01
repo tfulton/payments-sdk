@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Smart Buttons - Payments SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- Payment SDK -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&currency=USD&intent=authorize"></script>
+
+    <!---
+    var url = 'https://www.paypal.com/sdk/js?' +
+    'client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq'; // +
+    '&env=sandbox' +
+    '&currency=EUR' + 
+    '&intent=authorize' +
+    '&components=buttons'// changing to hosted does not return a 400, but not sure what to do here
+    // '&locale-country=DE' // works
+    // '&order-commit=false' + // works
+    // '&order-vault=true' + // don't seem to be prompted with the billing agreement in pop-up.  is this working?
+    // '&order-currency=GBP' + // not sure if this is supposed to override the payload in createOrder(); does not appear to be the case
+    
+    // '&locale-lang=de' + // results in 400 BAD REQUEST
+    // '&funding-disable=credit' + // results in 400 BAD REQUEST
+    // '&card-disable=visa' + // results in 400 BAD REQUEST
+    // '&debug=true'; // works
+    -->
+
+    <style>
+        pre {
+            font-size: 80%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BEGIN: STEP HEADER -->
+    <div class="ui menu">
+        <a class="active item" id="home">
+            <i class="home icon"></i> Home
+        </a>
+    </div>
+    <div class="ui three top attached mini steps">
+        <div class="active step" id="stepOne">
+            <i class="angle double right icon"></i>
+            <div class="content">
+                <div class="title">Approve</div>
+            </div>
+        </div>
+        <div class="disabled step" id="stepTwo">
+            <i class="angle double right icon"></i>
+            <div class="content">
+                <div class="title">Review</div>
+            </div>
+        </div>
+        <div class="disabled step" id="stepThree">
+            <i class="angle double right icon"></i>
+            <div class="content">
+                <div class="title">Complete</div>
+            </div>
+        </div>
+    </div>
+    <!-- END: STEP HEADER -->
+
+    <!-- BEGIN: MAIN CONTENT -->
+    <div class="ui dimmable attached segment" id="mainSection">
+        <p>
+        <p>
+        <div class="ui grid">
+            
+            <div class="row">
+                <div class="column">
+                    <h3 class="ui header">Payments SDK - Sample Test</h3>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="column">
+
+                    <!-- PAYMENT FORM -->
+                    <div class="ui form" id="paymentForm">
+                        <div class="ui stackable internally celled grid">
+                            <div class="four wide column">
+                                <div id="paypal-button-container"></div>
+                            </div>
+                            <div class="eight wide column" id="paymentData">
+                                <h4 class="ui header">Payment Data</h4>
+                                <p></p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORDER REVIEW FORM -->
+                    <div class="ui form" id="authForm" hidden>
+                        <div class="ui stackable internally celled grid">
+                            <div class="four wide column">
+                                <input type="hidden" id="orderId" />
+                                <button class="ui primary button" id="authorize">
+                                    Authorize
+                                </button>
+                                <button class="ui button" id="cancel">
+                                    Discard
+                                </button>
+                            </div>
+                            <div class="eight wide column" id="orderData">
+                                <h4 class="ui header">Order Data</h4>
+                                <p></p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORDER REVIEW FORM -->
+                    <div class="ui form" id="finalForm" hidden>
+                        <div class="ui stackable internally celled grid">
+                            <div class="four wide column">
+                                <button class="ui primary button" id="cancel">
+                                    Dot it Again
+                                </button>
+                            </div>
+                            <div class="eight wide column" id="authData">
+                                <h4 class="ui header">Authorization Data</h4>
+                                <p></p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- END: MAIN CONTENT -->
+
+    <script>
+
+        // Use the below to test static ID's generated elsewhere
+        var paymentDataX = '0UC130409U788704C'
+
+        // JSON String for creating orders via the client-side
+        var paymentData = { 
+            "application_context": {
+                "return_url": "https://www.paypal.com/checkoutnow/error",
+                "cancel_url": "https://www.paypal.com/checkoutnow/error"
+            },
+            "purchase_units": [
+                {
+                    "reference_id": "MAR01_001_REFID",
+                    "custom_id": "MAR01_001_INTERNAL_ONLY",
+                    "description": "Purchase Unit Description",
+                    "soft_descriptor": "soft description",
+                    "invoice_id":"MAR01_001_INVOICEID",
+                    "amount": {
+                        "currency_code": "USD",
+                        "value": "10.00"
+                    }
+                }
+            ]
+        };
+
+        // set the text area with payment data
+        // $("#paymentJson").val(JSON.stringify(paymentData, null, 4));
+        if (typeof paymentData === 'object') {
+            $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+        }
+        else {
+            $("#paymentData").append("<pre>" + paymentData + "</pre>");
+        }
+
+        paypal.Buttons({
+            style: {
+                height: 25
+            },
+
+            createOrder: function (data, actions) {
+
+                // CLIENT SIDE ORDER CREATE
+                if (typeof paymentData === 'object') {
+                    return actions.order.create(
+                        paymentData
+                    );
+                } // ELSE (LIKELY) USE A TOKEN SUPPLIED
+                else {
+                    return paymentData;
+                }
+            },
+            onApprove: function (data, actions) {
+
+                console.log("onApprove data: ", data);
+
+                // // Get the transaction details
+                return actions.order.get().then(function (order) {
+                    // Optionally display the transaction details to the buyer
+                    console.log("actions.order.get: ", order);
+
+                    // show the order data
+                    $("#orderData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
+                    $("#ordeId").val(order.id);
+
+                    // show or hide forms
+                    $("#paymentForm").hide();
+                    $("#authForm").show();
+
+                    // update the "steps"
+                    $("#stepOne").addClass("disabled").removeClass("active");
+                    $("#stepTwo").addClass("active").removeClass("disabled");
+
+                    // handle the authorization click
+                    $("#authorize").click(function () {
+                        console.log("Authorizing the order: ", order.id);
+
+                        // show the dimmer / loader
+                        // $("#dimmerOverlay").toggleClass("active");
+                        // $('.ui.dimmable').dimmer('show')
+                        $("#mainSection").dimmer("show").addClass("inverted")
+
+                        actions.order.authorize().then(function (auth) {
+                            console.log("Authorization data: ", auth);
+
+                            // show the authorization data
+                            $("#authData").append("<pre>" + JSON.stringify(auth, null, 2) + "</pre>");
+
+                            // show or hide forms 
+                            $("#authForm").hide();
+                            $("#finalForm").show();
+
+                            // update the "steps"
+                            $("#stepTwo").addClass("disabled").removeClass("active");
+                            $("#stepThree").addClass("active").removeClass("disabled");
+
+                        }).catch(function (e) {
+                            $("#dimmerOverlay").toggleClass("active");
+                            console.log("ERROR in catch: ", e);
+                        }).finally(function () {
+                            // $("#dimmerOverlay").removeClass("active");
+                            $("#mainSection").dimmer("hide").removeClass("inverted");
+                        })
+                    });
+
+
+                }).catch(function (error) {
+                    console.log("ERROR: ", error);
+                });
+            }
+        }).render('#paypal-button-container');
+
+    </script>
+    <script>
+        $("#home, #cancel, #cancel2, #cancel3").click(function () {
+            /* function goes in here */
+            location.reload()
+        });
+    </script>
+</body>
+
+</html>
