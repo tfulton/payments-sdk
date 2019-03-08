@@ -1,0 +1,11 @@
+{"comment": "RENAME THIS FILE TO DEFAULT.JSON AFTER YOU PLACE YOUR SPECIFIC CONFIGS INTO THE FILE .... OHHHH, AND DON'T FORGET TO DELETE THESE COMMENT LINES!!!",
+  "env": {
+    "sandbox": {
+      "baseURL": "https://api.sandbox.paypal.com",
+      "credentials": {
+        "clientId": "",
+        "secret": ""
+      }
+    }
+  }
+}
