@@ -13,25 +13,6 @@
     <!-- Payment SDK -->
     <script
         src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&currency=USD&intent=authorize"></script>
-
-    <!---
-    var url = 'https://www.paypal.com/sdk/js?' +
-    'client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq'; // +
-    '&env=sandbox' +
-    '&currency=EUR' + 
-    '&intent=authorize' +
-    '&components=buttons'// changing to hosted does not return a 400, but not sure what to do here
-    // '&locale-country=DE' // works
-    // '&order-commit=false' + // works
-    // '&order-vault=true' + // don't seem to be prompted with the billing agreement in pop-up.  is this working?
-    // '&order-currency=GBP' + // not sure if this is supposed to override the payload in createOrder(); does not appear to be the case
-    
-    // '&locale-lang=de' + // results in 400 BAD REQUEST
-    // '&funding-disable=credit' + // results in 400 BAD REQUEST
-    // '&card-disable=visa' + // results in 400 BAD REQUEST
-    // '&debug=true'; // works
-    -->
-
     <style>
         pre {
             font-size: 80%;
@@ -143,38 +124,8 @@
 
     <script>
 
-        // Use the below to test static ID's generated elsewhere
-        var paymentDataIdOnly = '9C575527GG516242X'
-
-        // JSON String for creating orders via the client-side
-        var paymentData = { 
-            "application_context": {
-                "return_url": "https://www.paypal.com/checkoutnow/error",
-                "cancel_url": "https://www.paypal.com/checkoutnow/error"
-            },
-            "purchase_units": [
-                {
-                    "reference_id": "MAR01_001_REFID",
-                    "custom_id": "MAR01_001_INTERNAL_ONLY",
-                    "description": "Purchase Unit Description",
-                    "soft_descriptor": "soft description",
-                    "invoice_id":"MAR01_001_INVOICEID",
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": "10.00"
-                    }
-                }
-            ]
-        };
-
         // set the text area with payment data
-        // $("#paymentJson").val(JSON.stringify(paymentData, null, 4));
-        if (typeof paymentData === 'object') {
-            $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
-        }
-        else {
-            $("#paymentData").append("<pre>" + paymentData + "</pre>");
-        }
+        $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
 
         paypal.Buttons({
             style: {
@@ -184,27 +135,44 @@
             createOrder: function (data, actions) {
 
                 // CLIENT SIDE ORDER CREATE
-                if (typeof paymentData === 'object') {
-                    return actions.order.create(
-                        paymentData
-                    );
-                } // ELSE (LIKELY) USE A TOKEN SUPPLIED
-                else {
-                    return paymentData;
-                }
+                return fetch('/v2/orders', {
+                    method: 'POST',
+                    body: '{}',
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(function(response){
+                    console.log("status: ", response.status);    //=> number 100–599
+                    console.log("statusText: ", response.statusText); //=> String
+                    console.log("headers: ", JSON.stringify(response.headers));    //=> Headers
+                    console.log("url: ", response.url);        //=> String
+                    return response.json();
+                })
+                .then(function (json) {
+                    console.log("JSON: ", JSON.stringify(json));
+
+                    return json.id;
+                }, function (error) {
+                    console.error("error.message: ", error.message) //=> String
+                });
             },
             onApprove: function (data, actions) {
 
+                const orderId = data.orderID;
                 console.log("onApprove data: ", data);
-
-                // // Get the transaction details
-                return actions.order.get().then(function (order) {
-                    // Optionally display the transaction details to the buyer
-                    console.log("actions.order.get: ", order);
+                return fetch(`/v2/orders/${orderId}`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (order) {
+                    console.log("Order JSON: ", order);
 
                     // show the order data
                     $("#orderData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
-                    $("#ordeId").val(order.id);
+                    $("#orderId").val(order.id);
 
                     // show or hide forms
                     $("#paymentForm").hide();
@@ -216,14 +184,21 @@
 
                     // handle the authorization click
                     $("#authorize").click(function () {
-                        console.log("Authorizing the order: ", order.id);
+                        console.log("Authorizing the order: ", orderId);
 
                         // show the dimmer / loader
                         // $("#dimmerOverlay").toggleClass("active");
                         // $('.ui.dimmable').dimmer('show')
-                        $("#mainSection").dimmer("show").addClass("inverted")
+                        $("#mainSection").dimmer("show");
 
-                        actions.order.authorize().then(function (auth) {
+                        fetch(`/v2/orders/${orderId}/authorize`, {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        }).then(function(response){
+                            return response.json();
+                        }).then(function (auth) {
                             console.log("Authorization data: ", auth);
 
                             // show the authorization data
@@ -237,19 +212,17 @@
                             $("#stepTwo").addClass("disabled").removeClass("active");
                             $("#stepThree").addClass("active").removeClass("disabled");
 
-                        }).catch(function (e) {
-                            $("#dimmerOverlay").toggleClass("active");
+                            $("#mainSection").dimmer("hide");
+
+                        }), function (e) {
+                            $("#mainSection").dimmer("hide");
                             console.log("ERROR in catch: ", e);
-                        }).finally(function () {
-                            // $("#dimmerOverlay").removeClass("active");
-                            $("#mainSection").dimmer("hide").removeClass("inverted");
-                        })
+                        }
                     });
 
-
-                }).catch(function (error) {
+                }), function (error) {
                     console.log("ERROR: ", error);
-                });
+                };
             }
         }).render('#paypal-button-container');
 

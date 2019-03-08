@@ -19,8 +19,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+/*******************************************/
+/*************** BEGIN: ROUTES**************/
+
+var index = require('./routes/index');
+app.use('/', index);
+
+var auth = require('./routes/auth');
+app.use('/auth', auth);
+
+var ordersV2 = require('./routes/orders_v2');
+app.use('/v2/orders', ordersV2);
+
+var paymentsV2 = require('./routes/payments_v2');
+app.use('/v2/payments', paymentsV2);
+
+// var nvp = require('./routes/nvp');
+// app.use('/nvp', nvp);
+
+/*******************************************/
+/*************** END: ROUTES ***************/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
