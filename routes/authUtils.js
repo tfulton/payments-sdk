@@ -17,8 +17,6 @@ var getGrantValue = function() {
         headers: headers,
         body: 'grant_type=client_credentials'
     }).then(function (response) {
-        console.log("Fetch response raw: ", response);
-        console.log("Fetch status: ", response.status);
         if (response.status === 200) {
             return response.json();
         }
@@ -27,7 +25,6 @@ var getGrantValue = function() {
         }
 
     }).then(function (json) {
-        console.log("Fetch json: ", json);
         return json;
     }).catch(function (error) {
         console.log("Fetch error: ", error);

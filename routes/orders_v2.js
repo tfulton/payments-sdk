@@ -85,11 +85,11 @@ router.post('/:orderId/authorize', function(req, res, next){
             headers: req.ppHeader,
             body: '{}'
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.status(201).send(json);
+            
+            res.status(201).send(json.purchase_units[0].payments.authorizations[0]);
         }).catch(function (error) {
             res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
         });
@@ -110,7 +110,6 @@ router.post('/:orderId/save', function(req, res, next){
             headers: req.ppHeader,
             body: '{}'
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);

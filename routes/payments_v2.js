@@ -27,7 +27,6 @@ router.post('/authorizations/:authId/capture', function(req, res, next){
             headers: req.ppHeader,
             body: JSON.stringify(payload)
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);

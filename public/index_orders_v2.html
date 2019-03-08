@@ -28,7 +28,7 @@
             <i class="home icon"></i> Home
         </a>
     </div>
-    <div class="ui three top attached mini steps">
+    <div class="ui four top attached mini steps">
         <div class="active step" id="stepOne">
             <i class="angle double right icon"></i>
             <div class="content">
@@ -44,9 +44,15 @@
         <div class="disabled step" id="stepThree">
             <i class="angle double right icon"></i>
             <div class="content">
-                <div class="title">Complete</div>
+                <div class="title">Capture</div>
             </div>
         </div>
+        <div class="disabled step" id="stepFour">
+                <i class="angle double right icon"></i>
+                <div class="content">
+                    <div class="title">Complete</div>
+                </div>
+            </div>
     </div>
     <!-- END: STEP HEADER -->
 
@@ -99,16 +105,36 @@
                         </div>
                     </div>
 
-                    <!-- ORDER REVIEW FORM -->
-                    <div class="ui form" id="finalForm" hidden>
+                    <!-- AUTH REVIEW FORM -->
+                    <div class="ui form" id="captureForm" hidden>
                         <div class="ui stackable internally celled grid">
                             <div class="four wide column">
-                                <button class="ui primary button" id="cancel">
-                                    Dot it Again
+                                <input type="hidden" id="authId" />
+                                <button class="ui primary button" id="capture">
+                                    Capture
+                                </button>
+                                <button class="ui button" id="cancel">
+                                    Discard
                                 </button>
                             </div>
                             <div class="eight wide column" id="authData">
                                 <h4 class="ui header">Authorization Data</h4>
+                                <p></p>
+                                <p></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAPTURE REVIEW FORM -->
+                    <div class="ui form" id="finalForm" hidden>
+                        <div class="ui stackable internally celled grid">
+                            <div class="four wide column">
+                                <button class="ui primary button" id="cancel">
+                                    Do it Again
+                                </button>
+                            </div>
+                            <div class="eight wide column" id="captureData">
+                                <h4 class="ui header">Capture Data</h4>
                                 <p></p>
                                 <p></p>
                             </div>
@@ -142,15 +168,9 @@
                         "Content-Type": "application/json"
                     }
                 }).then(function(response){
-                    console.log("status: ", response.status);    //=> number 100–599
-                    console.log("statusText: ", response.statusText); //=> String
-                    console.log("headers: ", JSON.stringify(response.headers));    //=> Headers
-                    console.log("url: ", response.url);        //=> String
                     return response.json();
                 })
                 .then(function (json) {
-                    console.log("JSON: ", JSON.stringify(json));
-
                     return json.id;
                 }, function (error) {
                     console.error("error.message: ", error.message) //=> String
@@ -168,11 +188,11 @@
                 }).then(function (response) {
                     return response.json();
                 }).then(function (order) {
-                    console.log("Order JSON: ", order);
+                    console.log("Order Data: ", order);
 
                     // show the order data
                     $("#orderData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
-                    $("#orderId").val(order.id);
+                    $("#orderId").val(orderId);
 
                     // show or hide forms
                     $("#paymentForm").hide();
@@ -187,8 +207,6 @@
                         console.log("Authorizing the order: ", orderId);
 
                         // show the dimmer / loader
-                        // $("#dimmerOverlay").toggleClass("active");
-                        // $('.ui.dimmable').dimmer('show')
                         $("#mainSection").dimmer("show");
 
                         fetch(`/v2/orders/${orderId}/authorize`, {
@@ -196,23 +214,58 @@
                             headers: {
                                 "Content-Type": "application/json"
                             }
-                        }).then(function(response){
+                        }).then(function (response) {
                             return response.json();
                         }).then(function (auth) {
                             console.log("Authorization data: ", auth);
+                            var authId = auth.id;
 
                             // show the authorization data
                             $("#authData").append("<pre>" + JSON.stringify(auth, null, 2) + "</pre>");
+                            $("#authId").val(authId);
 
                             // show or hide forms 
                             $("#authForm").hide();
-                            $("#finalForm").show();
+                            $("#captureForm").show();
 
                             // update the "steps"
                             $("#stepTwo").addClass("disabled").removeClass("active");
                             $("#stepThree").addClass("active").removeClass("disabled");
 
                             $("#mainSection").dimmer("hide");
+
+                            $("#capture").click(function () {
+                                console.log("Capturing the auth: ", authId);
+
+                                // show the dimmer / loader
+                                $("#mainSection").dimmer("show");
+
+                                fetch(`/v2/payments/authorizations/${authId}/capture`, {
+                                    method: 'POST',
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    }
+                                }).then(function (response) {
+                                    return response.json();
+                                }).then(function (capture) {
+                                    // show the authorization data
+                                    $("#captureData").append("<pre>" + JSON.stringify(capture, null, 2) + "</pre>");
+
+                                    // show or hide forms 
+                                    $("#captureForm").hide();
+                                    $("#finalForm").show();
+
+                                    // update the "steps"
+                                    $("#stepThree").addClass("disabled").removeClass("active");
+                                    $("#stepFour").addClass("active").removeClass("disabled");
+
+                                    $("#mainSection").dimmer("hide");
+
+                                }), function (error) {
+                                    $("#mainSection").dimmer("hide");
+                                    console.log("ERROR in catch: ", e);
+                                }
+                            })
 
                         }), function (e) {
                             $("#mainSection").dimmer("hide");
