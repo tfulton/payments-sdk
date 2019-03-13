@@ -4,7 +4,7 @@ var config = require('config');
 var fetch = require('node-fetch');
 var buildAccessHeader = require('./authUtils').buildAccessHeader;
 
-var baseURL = config.get("env.sandbox.baseURL");
+var baseURL = config.get("env.sandbox.rest.baseURL");
 
 // do some initial prep
 router.use(function(req, res, next){

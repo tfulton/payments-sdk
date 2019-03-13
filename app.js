@@ -1,3 +1,5 @@
+// var process = require('process');
+// var envs = require('envs');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -22,6 +24,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 /*******************************************/
 /*************** BEGIN: ROUTES**************/
 
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+// app.set('environment', envs('NODE_TLS_REJECT_UNAUTHORIZED', '0'));
+
 var index = require('./routes/index');
 app.use('/', index);
 
@@ -34,8 +39,8 @@ app.use('/v2/orders', ordersV2);
 var paymentsV2 = require('./routes/payments_v2');
 app.use('/v2/payments', paymentsV2);
 
-// var nvp = require('./routes/nvp');
-// app.use('/nvp', nvp);
+var nvp = require('./routes/nvp');
+app.use('/nvp', nvp);
 
 /*******************************************/
 /*************** END: ROUTES ***************/

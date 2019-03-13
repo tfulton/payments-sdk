@@ -3,8 +3,8 @@ var base64 = require('base-64');
 var fetch = require('node-fetch');
 
 var getGrantValue = function() {
-    var creds = config.get("env.sandbox.credentials");
-    var baseURL = config.get("env.sandbox.baseURL");
+    var creds = config.get("env.sandbox.rest.credentials");
+    var baseURL = config.get("env.sandbox.rest.baseURL");
 
     var userPass = base64.encode(creds.clientId + ":" + creds.secret);
     var headers = {
