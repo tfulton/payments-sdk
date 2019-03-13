@@ -6,8 +6,12 @@ router.get('/', function (req, res, next) {
   res.redirect(302, '/index.html');
 });
 
-router.get('/ordersV2', function (req, res, next) {
-  res.redirect(302, './index_orders_v2.html');
+router.get('/v2', function (req, res, next) {
+  res.redirect(302, './index_v2.html');
+});
+
+router.get('/nvp', function (req, res, next) {
+  res.redirect(302, './index_nvp.html');
 });
 
 
