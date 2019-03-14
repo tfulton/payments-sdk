@@ -110,7 +110,7 @@
                     <div class="ui form" id="captureForm" hidden>
                         <div class="ui stackable internally celled grid">
                             <div class="four wide column">
-                                <input type="hidden" id="authId" />
+                                <input type="hidden" id="transactionId" />
                                 <button class="ui primary button" id="capture">
                                     Capture
                                 </button>
@@ -191,7 +191,7 @@
                 }).then(function (getEcResp) {
                     console.log("getEcResp Data: ", getEcResp);
 
-                    // show the order data
+                    // show the order data and store hidden input fields
                     $("#orderData").append("<pre>" + JSON.stringify(getEcResp, null, 2) + "</pre>");
                     $("#token").val(getEcResp.TOKEN);
                     $("#payerId").val(getEcResp.PAYERID);
@@ -224,12 +224,12 @@
                             return response.json();
                         }).then(function (auth) {
                             console.log("Authorization data: ", auth);
-                            // var authId = auth.id;
-                            var authId = 999;
 
-                            // show the authorization data
+                            // show the authorization data and store hidden input fields
                             $("#authData").append("<pre>" + JSON.stringify(auth, null, 2) + "</pre>");
-                            $("#authId").val(authId);
+                            var transactionId = auth.TRANSACTIONID;
+                            $("#transactionId").val(transactionId);
+                            console.log("transactionId: ", $("#transactionId").val());
 
                             // show or hide forms 
                             $("#authForm").hide();
@@ -242,17 +242,21 @@
                             $("#mainSection").dimmer("hide");
 
                             $("#capture").click(function () {
-                                console.log("Capturing the auth: ", authId);
+                                console.log("Capturing the auth: ", transactionId);
 
                                 // show the dimmer / loader
                                 $("#mainSection").dimmer("show");
 
-                                fetch(`/nvp/doAuth${authId}/capture`, {
+                                fetch(`/nvp/doCapture`, {
                                     method: 'POST',
                                     headers: {
                                         "Content-Type": "application/json"
-                                    }
+                                    },
+                                    body: JSON.stringify({
+                                        transactionId: $("#transactionId").val(),
+                                    })
                                 }).then(function (response) {
+                                    console.log("doCapture RESPONSE: ", response);
                                     return response.json();
                                 }).then(function (capture) {
                                     // show the authorization data
