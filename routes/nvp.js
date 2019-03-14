@@ -54,6 +54,7 @@ router.post('/setEC', function(req, res, next) {
     params.append("PAYMENTREQUEST_0_SHIPTOPHONENUM", "415.555.1212");
 
     // Payment Details Type Field
+    params.append("PAYMENTREQUEST_0_PAYMENTACTION", "Order"); // Sale | Authorization | Order
     params.append("PAYMENTREQUEST_0_AMT", "12.00");
     params.append("PAYMENTREQUEST_0_CURRENCYCODE", "USD");
     params.append("PAYMENTREQUEST_0_ITEMAMT", "10");
@@ -71,7 +72,6 @@ router.post('/setEC', function(req, res, next) {
     params.append("PAYMENTREQUEST_0_NOTETEXT", "Note to the merchant, test.");
     params.append("NOTETOBUYER", "Note to the buyer, test.");
     // params.append("PAYMENTREQUEST_0_ALLOWEDPAYMENTMETHOD", "InstantPaymentOnly");
-    params.append("PAYMENTREQUEST_0_PAYMENTACTION", "Order"); // Sale | Authorization | Order
     // params.append("PAYMENTREQUEST_0_PAYMENTREQUESTID", "");
     // params.append("PAYMENTREQUEST_0_BUCKETCATEGORYTYPE", "");
     params.append("PAYMENTREQUEST_0_LOCATION_TYPE", "1"); // (1) Consumer; (2) Store, for BOPIS (buy online pick-up in store) transactions; (3)PickupDropoff, for PUDO (pick-up drop-off) transactions
@@ -108,11 +108,11 @@ router.post('/setEC', function(req, res, next) {
             body: params
         }).then(function(response){
             return response.text();
-        }).then(function(body){
-            console.log("Fetch BODY: ", body);
-            var bodyParsed = querystring.parse(body);
-            console.log("body: ", JSON.stringify(bodyParsed, null, 4));
-            res.status(201).send(JSON.stringify(bodyParsed)); 
+        }).then(function(resp){
+            console.log("Fetch RESPONSE: ", resp);
+            var body = querystring.parse(resp);
+            console.log("body: ", JSON.stringify(body, null, 4));
+            res.status(201).send(JSON.stringify(body)); 
         }).catch(function (error) {
             console.log("Error: ", error);
             res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
@@ -145,11 +145,11 @@ router.get('/getEC/:token', function(req, res, next) {
             body: params
         }).then(function(response){
             return response.text();
-        }).then(function(body){
-            console.log("Fetch BODY: ", body);
-            var bodyParsed = querystring.parse(body);
-            console.log("body: ", JSON.stringify(bodyParsed, null, 4));
-            res.status(201).send(JSON.stringify(bodyParsed)); 
+        }).then(function(resp){
+            console.log("Fetch RESPONSE: ", resp);
+            var body = querystring.parse(resp);
+            console.log("body: ", JSON.stringify(body, null, 4));
+            res.status(201).send(JSON.stringify(body)); 
         }).catch(function (error) {
             console.log("Error: ", error);
             res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
@@ -194,6 +194,7 @@ function doEC(req, res, next) {
     params.append("PAYMENTREQUEST_0_SHIPTOPHONENUM", "415.555.1212");
 
     // Payment Details Type Field
+    params.append("PAYMENTREQUEST_0_PAYMENTACTION", "Order"); // Sale | Authorization | Order
     params.append("PAYMENTREQUEST_0_AMT", "12.00");
     params.append("PAYMENTREQUEST_0_CURRENCYCODE", "USD");
     params.append("PAYMENTREQUEST_0_ITEMAMT", "10");
@@ -211,11 +212,12 @@ function doEC(req, res, next) {
     params.append("PAYMENTREQUEST_0_NOTETEXT", "Note to the merchant, test.");
     params.append("NOTETOBUYER", "Note to the buyer, test.");
     // params.append("PAYMENTREQUEST_0_ALLOWEDPAYMENTMETHOD", "InstantPaymentOnly");
-    params.append("PAYMENTREQUEST_0_PAYMENTACTION", "Order"); // Sale | Authorization | Order
     // params.append("PAYMENTREQUEST_0_PAYMENTREQUESTID", "");
     // params.append("PAYMENTREQUEST_0_BUCKETCATEGORYTYPE", "");
     params.append("PAYMENTREQUEST_0_LOCATION_TYPE", "1"); // (1) Consumer; (2) Store, for BOPIS (buy online pick-up in store) transactions; (3)PickupDropoff, for PUDO (pick-up drop-off) transactions
     params.append("PAYMENTREQUEST_0_LOCATION_ID", "");
+
+    params.append("PAYMENTREQUEST_0_SOFTDESCRIPTOR", "TESTSTORE");
     
     // Payment Details Item Type Fields
     params.append("L_PAYMENTREQUEST_0_NAME0", "Yellow Hat");
@@ -244,15 +246,13 @@ function doEC(req, res, next) {
             body: params
         }).then(function(response){
             return response.text();
-        }).then(function(body){
-            console.log("Fetch BODY: ", body);
-            var doEcBody = querystring.parse(body);
-            console.log("body: ", JSON.stringify(doEcBody, null, 4));
-            var transactionId = doEcBody.PAYMENTINFO_0_TRANSACTIONID;
-            console.log("TRANSACTION ID: ", transactionId);
-            res.locals.transactionId = transactionId;
+        }).then(function(resp){
+            console.log("Fetch RESPONSE: ", resp);
+            const body = querystring.parse(resp);
+            console.log("TRANSACTION ID #1: ", body.PAYMENTINFO_0_TRANSACTIONID);
+            res.locals.transactionId = body.PAYMENTINFO_0_TRANSACTIONID;
+            res.locals.body = body;
             next();
-            
         }).catch(function (error) {
             console.log("Error: ", error);
             res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
@@ -264,7 +264,7 @@ function doEC(req, res, next) {
     }
 };
 router.post('/doEC', doEC, function(req, res, next) {
-    res.status(201).send(JSON.stringify(req.doEcBody)); 
+    res.status(201).send(JSON.stringify(res.locals.body)); 
 });
 
 function doAuth(req, res, next) {
@@ -292,11 +292,9 @@ function doAuth(req, res, next) {
             body: params
         }).then(function(response){
             return response.text();
-        }).then(function(body){
-            console.log("Fetch BODY: ", body);
-            var doAuthBody = querystring.parse(body);
-            console.log("body: ", JSON.stringify(doAuthBody, null, 4));
-            res.locals.doAuthBody = doAuthBody;
+        }).then(function(resp){
+            console.log("Fetch RESPONSE: ", resp);
+            res.locals.doAuthBody = querystring.parse(resp);;
             next();
         }).catch(function (error) {
             console.log("Error: ", error);
@@ -309,12 +307,61 @@ function doAuth(req, res, next) {
 };
 
 router.post('/doAuth', doAuth, function(req, res, next) {
-    res.status(201).send(JSON.stringify(res.locals.doAuthBody));
+    res.status(201).send(JSON.stringify(res.locals.body));
 });
 
 const combinedDoECDoAuth = [doEC, doAuth];
 router.post('/doCombined', combinedDoECDoAuth, function(req, res, next){
     res.status(201).send(JSON.stringify(res.locals.doAuthBody));
-})
+});
+
+router.post('/doCapture', function doCapture(req, res, next) {
+
+    console.log("Entering the doCapture function.");
+    var transactionId = req.body.transactionId;
+    console.log("transactionId: ", transactionId);
+
+    const params = new URLSearchParams(baseURL);
+    params.append("USER", creds.user);
+    params.append("PWD", creds.pwd);
+    params.append("SIGNATURE", creds.signature);
+    params.append("VERSION", "204.0");
+    params.append("METHOD", "DoCapture");
+    params.append("AUTHORIZATIONID", transactionId);
+    params.append("AMT", "12");
+    params.append("CURRENCYCODE", "USD");
+    params.append("COMPLETETYPE", "Complete"); // Complete | NotComplete
+    params.append("INVNUM", "INV_001");
+    params.append("NOTE", "This is the final capture!");
+    params.append("SOFTDESCRIPTOR", "TESTSTORE");
+    // params.append("MSGSUBID", "");
+    // params.append("STOREID", "");
+    // params.append("TERMINALID", "");
+
+    try {
+
+        console.log("Starting the fetch for DoCapture.");
+        fetch(baseURL, {
+            method: 'POST',
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: params
+        }).then(function(response){
+            return response.text();
+        }).then(function(resp){
+            console.log("Fetch RESPONSE: ", resp);
+            res.status(201).send(JSON.stringify(querystring.parse(resp)));
+            
+        }).catch(function (error) {
+            console.log("Error: ", error);
+            res.status(500).send(JSON.stringify(
+                new Error("Problem in capture: ", error.message)
+            ));
+        });
+    }
+    catch(error) {
+        res.render('error', {message: "General error encountered", error: error});
+
+    }
+});
 
 module.exports = router;
