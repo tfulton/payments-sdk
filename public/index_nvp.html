@@ -12,7 +12,7 @@
 
     <!-- Payment SDK -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&currency=USD&intent=authorize"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&currency=USD&intent=order"></script>
     <style>
         pre {
             font-size: 80%;
@@ -89,9 +89,10 @@
                     <div class="ui form" id="authForm" hidden>
                         <div class="ui stackable internally celled grid">
                             <div class="four wide column">
-                                <input type="hidden" id="orderId" />
+                                <input type="hidden" id="token" />
+                                <input type="hidden" id="payerId" />
                                 <button class="ui primary button" id="authorize">
-                                    Authorize
+                                    DoEC/DoAuth
                                 </button>
                                 <button class="ui button" id="cancel">
                                     Discard
@@ -155,7 +156,7 @@
 
         paypal.Buttons({
             style: {
-                height: 25
+                // height: 25
             },
 
             createOrder: function (data, actions) {
@@ -187,12 +188,13 @@
                     }
                 }).then(function (response) {
                     return response.json();
-                }).then(function (order) {
-                    console.log("Order Data: ", order);
+                }).then(function (getEcResp) {
+                    console.log("getEcResp Data: ", getEcResp);
 
                     // show the order data
-                    $("#orderData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
-                    $("#orderId").val(orderId);
+                    $("#orderData").append("<pre>" + JSON.stringify(getEcResp, null, 2) + "</pre>");
+                    $("#token").val(getEcResp.TOKEN);
+                    $("#payerId").val(getEcResp.PAYERID);
 
                     // show or hide forms
                     $("#paymentForm").hide();
@@ -209,16 +211,21 @@
                         // show the dimmer / loader
                         $("#mainSection").dimmer("show");
 
-                        fetch(`/v2/orders/${orderId}/authorize`, {
+                        fetch(`/nvp/doCombined`, {
                             method: 'POST',
                             headers: {
                                 "Content-Type": "application/json"
-                            }
+                            },
+                            body: JSON.stringify({
+                                token: $("#token").val(),
+                                payerId: $("#payerId").val()
+                            })
                         }).then(function (response) {
                             return response.json();
                         }).then(function (auth) {
                             console.log("Authorization data: ", auth);
-                            var authId = auth.id;
+                            // var authId = auth.id;
+                            var authId = 999;
 
                             // show the authorization data
                             $("#authData").append("<pre>" + JSON.stringify(auth, null, 2) + "</pre>");
@@ -240,7 +247,7 @@
                                 // show the dimmer / loader
                                 $("#mainSection").dimmer("show");
 
-                                fetch(`/v2/payments/authorizations/${authId}/capture`, {
+                                fetch(`/nvp/doAuth${authId}/capture`, {
                                     method: 'POST',
                                     headers: {
                                         "Content-Type": "application/json"
