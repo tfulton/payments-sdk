@@ -48,108 +48,191 @@
             </div>
         </div>
         <div class="disabled step" id="stepFour">
-                <i class="angle double right icon"></i>
-                <div class="content">
-                    <div class="title">Complete</div>
-                </div>
+            <i class="angle double right icon"></i>
+            <div class="content">
+                <div class="title">Complete</div>
             </div>
+        </div>
     </div>
     <!-- END: STEP HEADER -->
 
     <!-- BEGIN: MAIN CONTENT -->
     <div class="ui dimmable attached segment" id="mainSection">
         <p>
-        <p>
-        <div class="ui grid">
-            
-            <div class="row">
-                <div class="column">
-                    <h3 class="ui header">Payments SDK - Sample Test</h3>
+            <p>
+                <div class="ui grid">
+
+                    <div class="row">
+                        <div class="column">
+                            <h3 class="ui header">Payments SDK - Sample Test</h3>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="column">
+
+                            <!-- PAYMENT FORM -->
+                            <div class="ui form" id="paymentForm">
+                                <div class="ui stackable internally celled grid">
+                                    <div class="four wide column">
+                                        <div id="paypal-button-container"></div>
+                                    </div>
+                                    <div class="eight wide column" id="paymentData">
+                                        <h4 class="ui header">Payment Data</h4>
+                                        <p></p>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ORDER REVIEW FORM -->
+                            <div class="ui form" id="authForm" hidden>
+                                <div class="ui stackable internally celled grid">
+                                    <div class="four wide column">
+                                        <input type="hidden" id="token" />
+                                        <input type="hidden" id="payerId" />
+                                        <button class="ui primary button" id="authorize">
+                                            DoEC/DoAuth
+                                        </button>
+                                        <button class="ui button" id="cancel">
+                                            Discard
+                                        </button>
+                                    </div>
+                                    <div class="eight wide column" id="orderData">
+                                        <h4 class="ui header">GetEC Response</h4>
+                                        <p></p>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AUTH REVIEW FORM -->
+                            <div class="ui form" id="captureForm" hidden>
+                                <div class="ui stackable internally celled grid">
+                                    <div class="four wide column">
+                                        <input type="hidden" id="transactionId" />
+                                        <button class="ui primary button" id="capture">
+                                            DoCapture
+                                        </button>
+                                        <button class="ui button" id="cancel">
+                                            Discard
+                                        </button>
+                                    </div>
+                                    <div class="eight wide column" id="authData">
+                                        <h4 class="ui header">DoAuth Response</h4>
+                                        <p></p>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CAPTURE REVIEW FORM -->
+                            <div class="ui form" id="finalForm" hidden>
+                                <div class="ui stackable internally celled grid">
+                                    <div class="four wide column">
+                                        <button class="ui primary button" id="cancel">
+                                            Do it Again
+                                        </button>
+                                    </div>
+                                    <div class="eight wide column" id="captureData">
+                                        <h4 class="ui header">DoCapture Response</h4>
+                                        <p></p>
+                                        <p></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
-            </div>
-            
-            <div class="row">
-                <div class="column">
-
-                    <!-- PAYMENT FORM -->
-                    <div class="ui form" id="paymentForm">
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <div id="paypal-button-container"></div>
-                            </div>
-                            <div class="eight wide column" id="paymentData">
-                                <h4 class="ui header">Payment Data</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ORDER REVIEW FORM -->
-                    <div class="ui form" id="authForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <input type="hidden" id="token" />
-                                <input type="hidden" id="payerId" />
-                                <button class="ui primary button" id="authorize">
-                                    DoEC/DoAuth
-                                </button>
-                                <button class="ui button" id="cancel">
-                                    Discard
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="orderData">
-                                <h4 class="ui header">Order Data</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AUTH REVIEW FORM -->
-                    <div class="ui form" id="captureForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <input type="hidden" id="transactionId" />
-                                <button class="ui primary button" id="capture">
-                                    Capture
-                                </button>
-                                <button class="ui button" id="cancel">
-                                    Discard
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="authData">
-                                <h4 class="ui header">Authorization Data</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CAPTURE REVIEW FORM -->
-                    <div class="ui form" id="finalForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <button class="ui primary button" id="cancel">
-                                    Do it Again
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="captureData">
-                                <h4 class="ui header">Capture Data</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
     </div>
     <!-- END: MAIN CONTENT -->
 
     <script>
+
+        const paymentData = {
+            intent: "AUTHORIZE",
+            application_context: {
+                brand_name: "Todd's Clothing Shop",
+                locale: "en-NL",
+                landing_page: "BILLING",
+                shipping_preference: "SET_PROVIDED_ADDRESS",
+                return_url: "https://www.paypal.com/checkoutnow/error",
+                cancel_url: "https://www.paypal.com/checkoutnow/error"
+            },
+            purchase_units: [
+                {
+                    reference_id: "MAR01_001_REFID",
+                    custom_id: "MAR01_001_INTERNAL_ONLY",
+                    description: "Purchase Unit Description",
+                    soft_descriptor: "soft description",
+                    invoice_id: "MAR01_001_INVOICEID",
+                    amount: {
+                        currency_code: "USD",
+                        value: 8.00,
+                        breakdown: {
+                            item_total: {
+                                currency_code: "USD",
+                                value: 6.00
+                            },
+                            tax_total: {
+                                currency_code: "USD",
+                                value: 1.00
+                            },
+                            shipping: {
+                                currency_code: "USD",
+                                value: 1.00
+                            },
+                            handling: {
+                                currency_code: "USD",
+                                value: 0.00
+                            },
+                            insurance: {
+                                currency_code: "USD",
+                                value: 0.0
+                            },
+                            shipping_discount: {
+                                currency_code: "USD",
+                                value: 0.00
+                            }
+                        }
+                    },
+                    items: [
+                        {
+                            name: "T-Shirt",
+                            description: "Green XL",
+                            sku: "sku01",
+                            unit_amount: {
+                                currency_code: "USD",
+                                value: 6.00
+                            },
+                            tax: {
+                                currency_code: "USD",
+                                value: 1.00
+                            },
+                            quantity: 1,
+                            category: "PHYSICAL_GOODS"
+                        }
+                    ],
+                    shipping: {
+                        method: "United States Postal Service",
+                        address: {
+                            name: {
+                                given_name: "Sarah",
+                                surname: "Serverton"
+                            },
+                            address_line_1: "123 Townsend St",
+                            address_line_2: "Floor 6",
+                            admin_area_2: "San Francisco",
+                            admin_area_1: "CA",
+                            postal_code: "94107",
+                            country_code: "US"
+                        }
+                    }
+                }
+            ]
+        }
 
         // set the text area with payment data
         $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
@@ -164,21 +247,22 @@
                 // CLIENT SIDE ORDER CREATE
                 return fetch('/nvp/setEC', {
                     method: 'POST',
-                    body: '{}',
                     headers: {
                         "Content-Type": "application/json"
-                    }
-                }).then(function(response){
-                    return response.json();
+                    },
+                    body: JSON.stringify(paymentData)
                 })
-                .then(function (json) {
+                .then(res => res.json())
+                .then(json => {
                     return json.TOKEN;
-                }, function (error) {
-                    console.error("error.message: ", error.message) //=> String
-                });
+                })
+                .catch( // I don't think this is really executed based on the client console.
+                    error => console.error('Error:', error)
+                );
             },
             onApprove: function (data, actions) {
 
+                // The EC token comes back in an 'orderID' named field.
                 const orderId = data.orderID;
                 console.log("onApprove data: ", data);
                 return fetch(`/nvp/getEC/${orderId}`, {
@@ -186,9 +270,9 @@
                     headers: {
                         "Content-Type": "application/json"
                     }
-                }).then(function (response) {
-                    return response.json();
-                }).then(function (getEcResp) {
+                })
+                .then(res => res.json())
+                .then(getEcResp => {
                     console.log("getEcResp Data: ", getEcResp);
 
                     // show the order data and store hidden input fields
@@ -211,15 +295,17 @@
                         // show the dimmer / loader
                         $("#mainSection").dimmer("show");
 
+                        body: JSON.stringify(paymentData)
                         fetch(`/nvp/doCombined`, {
                             method: 'POST',
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: JSON.stringify({
-                                token: $("#token").val(),
-                                payerId: $("#payerId").val()
-                            })
+                            body: (function () {
+                                paymentData.token = $("#token").val();
+                                paymentData.payerId = $("#payerId").val();
+                                return JSON.stringify(paymentData);
+                            })()
                         }).then(function (response) {
                             return response.json();
                         }).then(function (auth) {
@@ -252,9 +338,10 @@
                                     headers: {
                                         "Content-Type": "application/json"
                                     },
-                                    body: JSON.stringify({
-                                        transactionId: $("#transactionId").val(),
-                                    })
+                                    body: (function () {
+                                        paymentData.transactionId = $("#transactionId").val();
+                                        return JSON.stringify(paymentData);
+                                    })()
                                 }).then(function (response) {
                                     console.log("doCapture RESPONSE: ", response);
                                     return response.json();
