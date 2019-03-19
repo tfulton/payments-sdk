@@ -18,22 +18,13 @@ router.use(buildAccessHeader);
 router.post('/', function (req, res, next) {
 
     try {
-        var payload = {
-            "intent": "AUTHORIZE",
-            "purchase_units": [
-                {
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": "4.00"
-                    }
-                }
-            ]
-        }
+        console.log("BODY: ", req.body);
+        var cart = req.body;
 
         fetch(`${baseURL}/v2/checkout/orders`, {
             method: 'POST',
             headers: req.ppHeader,
-            body: JSON.stringify(payload)
+            body: JSON.stringify(cart)
         }).then(function (response) {
             // console.log("Fetch response raw: ", response);
             return response.json();
@@ -41,7 +32,7 @@ router.post('/', function (req, res, next) {
             console.log("Fetch json: ", json);
             res.status(201).send(json);
         }).catch(function (error) {
-            res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
+            res.status(400).send(JSON.stringify(new Error('Message rejected by endpoint.', error)));
         });
     }
     catch (error) {
@@ -75,8 +66,37 @@ router.get('/:orderId', function(req, res, next){
     }
 });
 
+// SAVE an order
+function doSave(req, res, next){
+    try {
+        var orderId = req.params.orderId;
+
+        fetch(`${baseURL}/v2/checkout/orders/${orderId}/save`, {
+            method: 'POST',
+            headers: req.ppHeader,
+            body: '{}'
+        }).then(function (response) {
+            return response.json();
+        }).then(function (json) {
+            console.log("Fetch json: ", json);
+            res.locals.body = json;
+            next();
+        }).catch(function (error) {
+            throw error;
+        });
+    }
+    catch (error) {
+        console.log("ERROR: ", error);
+        res.status(500).send("ERROR: ", JSON.stringify(error));
+    }
+};
+
+router.post('/:orderId/save', doSave, function(req, res, next){
+    res.status(201).send(res.locals.body);
+});
+
 // AUTHORIZE an order
-router.post('/:orderId/authorize', function(req, res, next){
+function doAuth(req, res, next) {
     try {
         var orderId = req.params.orderId;
 
@@ -88,61 +108,37 @@ router.post('/:orderId/authorize', function(req, res, next){
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            
-            res.status(201).send(json.purchase_units[0].payments.authorizations[0]);
+            res.locals.body = json;
+            next();
         }).catch(function (error) {
-            res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
+            throw error;
         });
     }
     catch (error) {
         console.log("ERROR: ", error);
         res.status(500).send("ERROR: ", JSON.stringify(error));
     }
+};
+
+router.post('/:orderId/authorize', doAuth, function(req, res, next){
+    res.status(201).send(res.locals.body);
 });
 
-// SAVE an order
-router.post('/:orderId/save', function(req, res, next){
+// COMBINED SAVE + AUTHORIZE an order
+const doCombined = [doSave, doAuth];
+router.post('/:orderId/doCombined', doCombined, function(req, res, next){
+    res.status(201).send(JSON.stringify(res.locals.body));
+});
+
+// CAPTURE an order
+router.post('/:orderId/capture', function(req, res, next){
     try {
         var orderId = req.params.orderId;
 
-        fetch(`${baseURL}v2/checkout/orders/${orderId}/save`, {
+        fetch(`${baseURL}/v2/checkout/orders/${orderId}/capture`, {
             method: 'POST',
             headers: req.ppHeader,
             body: '{}'
-        }).then(function (response) {
-            return response.json();
-        }).then(function (json) {
-            console.log("Fetch json: ", json);
-            res.status(201).send(json);
-        }).catch(function (error) {
-            res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
-        });
-    }
-    catch (error) {
-        console.log("ERROR: ", error);
-        res.status(500).send("ERROR: ", JSON.stringify(error));
-    }
-})
-
-// CAPTURE an order
-router.post('/capture', function(req, res, next){
-    try {
-        var payload = {
-            "intent": "AUTHORIZE",
-            "purchase_units": [
-                {
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": "4.00"
-                    }
-                }
-            ]
-        }
-
-        fetch(`${baseURL}/v2/checkout/orders`, {
-            method: 'POST',
-            headers: req.ppHeader,
-            body: JSON.stringify(payload)
         }).then(function (response) {
             // console.log("Fetch response raw: ", response);
             return response.json();
@@ -150,7 +146,7 @@ router.post('/capture', function(req, res, next){
             console.log("Fetch json: ", json);
             res.status(201).send(json);
         }).catch(function (error) {
-            res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
+            res.status(400).send(JSON.stringify(error));    
         });
     }
     catch (error) {
