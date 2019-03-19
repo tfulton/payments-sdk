@@ -32,12 +32,12 @@ router.post('/authorizations/:authId/capture', function(req, res, next){
             console.log("Fetch json: ", json);
             res.status(201).send(json);
         }).catch(function (error) {
-            res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
+            res.status(400).send(JSON.stringify(error)); 
         });
     }
     catch (error) {
         console.log("ERROR: ", error);
-        res.status(500).send("ERROR: ", JSON.stringify(error));
+        res.status(500).send(JSON.stringify(error));
     }
 });
 
