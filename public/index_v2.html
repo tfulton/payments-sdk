@@ -39,12 +39,12 @@
     <!-- END: HEADER -->
     
     <!-- BEGIN: MAIN CONTENT -->
-    <div id="mainSection" class="dimmable">
+    <!-- <div id="mainSection" class="dimmable"> -->
         <div class="ui top attached dimmable tabular menu">
-            <a class="item active" data-tab="first" id="stepOne">First</a>
-            <a class="item" data-tab="second" id="stepTwo">Second</a>
-            <a class="item" data-tab="third" id="stepThree">Third</a>
-            <a class="item" data-tab="third" id="stepFour">Fourth</a>
+            <a class="item active" data-tab="first" id="stepOne">Begin</a>
+            <a class="item" data-tab="second" id="stepTwo">Review</a>
+            <a class="item" data-tab="third" id="stepThree">Capture</a>
+            <a class="item" data-tab="third" id="stepFour">End</a>
         </div>
     
         <div class="ui bottom attached tab segment active">
@@ -109,7 +109,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    <!-- </div> -->
     <!-- END: MAIN CONTENT -->
     
     <script>
@@ -267,7 +267,7 @@
                         console.log("Saving + Authorizing the order: ", orderId);
 
                         // show the dimmer / loader
-                        $("#mainSection").dimmer("show");
+                        $("body").dimmer("show");
 
                         fetch(`/v2/orders/${orderId}/doCombined`, {
                             method: 'POST',
@@ -297,13 +297,13 @@
                             $("#stepTwo").removeClass("active");
                             $("#stepThree").addClass("active");
 
-                            $("#mainSection").dimmer("hide");
+                            $("body").dimmer("hide");
 
                             $("#capture").click(function () {
                                 console.log("Capturing the auth: ", authId);
 
                                 // show the dimmer / loader
-                                $("#mainSection").dimmer("show");
+                                $("body").dimmer("show");
 
                                 fetch(`/v2/payments/authorizations/${authId}/capture`, {
                                     method: 'POST',
@@ -325,16 +325,16 @@
                                     $("#stepThree").removeClass("active");
                                     $("#stepFour").addClass("active");
 
-                                    $("#mainSection").dimmer("hide");
+                                    $("body").dimmer("hide");
 
                                 }), function (error) {
-                                    $("#mainSection").dimmer("hide");
+                                    $("body").dimmer("hide");
                                     console.log("ERROR in catch: ", e);
                                 }
                             })
 
                         }), function (e) {
-                            $("#mainSection").dimmer("hide");
+                            $("body").dimmer("hide");
                             console.log("ERROR in catch: ", e);
                         }
                     });
