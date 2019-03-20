@@ -1,10 +1,12 @@
-var express = require('express');
-var router = express.Router();
-var config = require('config');
-var fetch = require('node-fetch');
-var buildAccessHeader = require('./authUtils').buildAccessHeader;
+const express = require('express');
+const router = express.Router();
+const config = require('config');
+const fetch = require('node-fetch');
+const buildAccessHeader = require('./authUtils').buildAccessHeader;
 
-var baseURL = config.get("env.sandbox.rest.baseURL");
+const baseURL = config.get("env.sandbox.rest.baseURL");
+const ResponseInfo = require("./dataUtils").ResponseInfo;
+
 
 
 // do some initial prep
@@ -45,17 +47,19 @@ router.post('/', function (req, res, next) {
 router.get('/:orderId', function(req, res, next){
 
     try{
-        var orderId = req.params.orderId;
+        const orderId = req.params.orderId;
 
-        fetch(`${baseURL}/v2/checkout/orders/${orderId}`, {
+        const url = `${baseURL}/v2/checkout/orders/${orderId}`;
+        fetch(url, {
             method: 'GET',
             headers: req.ppHeader,
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.status(201).send(json);
+            const responseInfo = new ResponseInfo('GET', url, 'N/A', json);
+            console.log("ResponseInfo: ", responseInfo);
+            res.status(201).send(JSON.stringify(responseInfo));
         }).catch(function (error) {
             res.render('error', {message: "We have a problem in the fetch: " + req.originalUrl, error: error});
         });
@@ -69,9 +73,9 @@ router.get('/:orderId', function(req, res, next){
 // SAVE an order
 function doSave(req, res, next){
     try {
-        var orderId = req.params.orderId;
-
-        fetch(`${baseURL}/v2/checkout/orders/${orderId}/save`, {
+        const orderId = req.params.orderId;
+        const url = `${baseURL}/v2/checkout/orders/${orderId}/save`;
+        fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
             body: '{}'
@@ -99,8 +103,8 @@ router.post('/:orderId/save', doSave, function(req, res, next){
 function doAuth(req, res, next) {
     try {
         var orderId = req.params.orderId;
-
-        fetch(`${baseURL}/v2/checkout/orders/${orderId}/authorize`, {
+        const url = `${baseURL}/v2/checkout/orders/${orderId}/authorize`;
+        fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
             body: '{}'
@@ -108,7 +112,8 @@ function doAuth(req, res, next) {
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.locals.body = json;
+            const responseInfo = new ResponseInfo('POST', url, 'N/A', json);
+            res.locals.body = responseInfo;
             next();
         }).catch(function (error) {
             throw error;
@@ -133,25 +138,25 @@ router.post('/:orderId/doCombined', doCombined, function(req, res, next){
 // CAPTURE an order
 router.post('/:orderId/capture', function(req, res, next){
     try {
-        var orderId = req.params.orderId;
-
-        fetch(`${baseURL}/v2/checkout/orders/${orderId}/capture`, {
+        const orderId = req.params.orderId;
+        const url = `${baseURL}/v2/checkout/orders/${orderId}/capture`; 
+        fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
             body: '{}'
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.status(201).send(json);
+            const responseInfo = new ResponseInfo('POST', url, 'N/A', json);
+            res.status(201).send(responseInfo);
         }).catch(function (error) {
             res.status(400).send(JSON.stringify(error));    
         });
     }
     catch (error) {
         console.log("ERROR: ", error);
-        res.status(500).send("ERROR: ", JSON.stringify(error));
+        res.status(500).send(JSON.stringify(error));
     }
 });
 

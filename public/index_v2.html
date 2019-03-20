@@ -21,133 +21,97 @@
 </head>
 
 <body>
-
-    <!-- BEGIN: STEP HEADER -->
-    <div class="ui menu">
-        <a class="active item" id="home">
-            <i class="home icon"></i> Home
-        </a>
+        
+    <!-- BEGIN: HEADER -->
+    <div class="ui top attached menu">
+        <div class="ui container">
+            <a class="active item" id="home">
+                <i class="home icon"></i>
+            </a>
+            <div class="header item">
+                PayPal JavaScript SDK&nbsp;
+                <i class="icon angle double right"></i>
+                &nbsp;Client Orders
+            </div>
+        </div>
     </div>
-    <div class="ui four top attached mini steps">
-        <div class="active step" id="stepOne">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Approve</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepTwo">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Review</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepThree">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Capture</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepFour">
-                <i class="angle double right icon"></i>
-                <div class="content">
-                    <div class="title">Complete</div>
-                </div>
-            </div>
-    </div>
-    <!-- END: STEP HEADER -->
-
+    
+    <!-- END: HEADER -->
+    
     <!-- BEGIN: MAIN CONTENT -->
-    <div class="ui dimmable attached segment" id="mainSection">
-        <p>
-        <p>
-        <div class="ui grid">
-            
-            <div class="row">
-                <div class="column">
-                    <h3 class="ui header">JS SDK (Orders V2 AS2/Server)</h3>
-                </div>
+    <div id="mainSection" class="dimmable">
+        <div class="ui top attached dimmable tabular menu">
+            <a class="item active" data-tab="first" id="stepOne">First</a>
+            <a class="item" data-tab="second" id="stepTwo">Second</a>
+            <a class="item" data-tab="third" id="stepThree">Third</a>
+            <a class="item" data-tab="third" id="stepFour">Fourth</a>
+        </div>
+    
+        <div class="ui bottom attached tab segment active">
+    
+            <!-- PAYMENT FORM -->
+            <div class="ui form" id="paymentForm">
+                <div id="paypal-button-container"></div>
             </div>
-            
-            <div class="row">
-                <div class="column">
-
-                    <!-- PAYMENT FORM -->
-                    <div class="ui form" id="paymentForm">
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <div id="paypal-button-container"></div>
-                            </div>
-                            <div class="eight wide column" id="paymentData">
-                                <h4 class="ui header">Data for New Order</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ORDER REVIEW FORM -->
-                    <div class="ui form" id="authForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <input type="hidden" id="orderId" />
-                                <button class="ui primary button" id="authorize">
-                                    Save + Authorize
-                                </button>
-                                <button class="ui button" id="cancel">
-                                    Discard
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="orderData">
-                                <h4 class="ui header">Order-GET Response</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AUTH REVIEW FORM -->
-                    <div class="ui form" id="captureForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <input type="hidden" id="authId" />
-                                <button class="ui primary button" id="capture">
-                                    Order Capture
-                                </button>
-                                <button class="ui button" id="cancel">
-                                    Discard
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="authData">
-                                <h4 class="ui header">Order-Auth Response</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CAPTURE REVIEW FORM -->
-                    <div class="ui form" id="finalForm" hidden>
-                        <div class="ui stackable internally celled grid">
-                            <div class="four wide column">
-                                <button class="ui primary button" id="cancel">
-                                    Do it Again
-                                </button>
-                            </div>
-                            <div class="eight wide column" id="captureData">
-                                <h4 class="ui header">Order-Capture Response</h4>
-                                <p></p>
-                                <p></p>
-                            </div>
-                        </div>
-                    </div>
-
+    
+            <!-- ORDER REVIEW FORM -->
+            <div class="ui form" id="authForm" hidden>
+                <input type="hidden" id="orderId" />
+                <button class="ui primary button" id="authorize">
+                    Save+Authorize Order
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- AUTH REVIEW FORM -->
+            <div class="ui form" id="captureForm" hidden>
+                <input type="hidden" id="authId" />
+                <button class="ui primary button" id="capture">
+                    Capture Auth
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+    
+            <!-- REQUEST/RESPONSE INFO HERE -->
+            <div class="ui divider"></div>
+            <div class="ui styled fluid accordion">
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request URL
                 </div>
-
+                <div class="content">
+                    <p class="transition hidden" id="requestURL"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="requestPayload"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Response
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="responsePayload">N/A</p>
+                </div>
             </div>
         </div>
     </div>
     <!-- END: MAIN CONTENT -->
-
+    
     <script>
 
         const paymentData = {
@@ -235,16 +199,26 @@
         }
 
         // set the text area with payment data
-        $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+        $("#requestURL").html("<strong>POST </strong>https://api.sandbox.paypal.com/v2/checkout/orders");
+        $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+
+        function presentPayload(info){
+            $("#requestType").html(info.type);
+            $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
+            $("#requestPayload").html(JSON.stringify(info.request, null, 1));
+            $("#responsePayload").html("<pre>" + JSON.stringify(info.response, null, 1) + "</pre>");
+            return;
+        }
 
         paypal.Buttons({
             style: {
                 height: 25
             },
 
+            // RETURN THE EC-TOKEN, ORDER-ID OR BA-ID IN ORDER TO RENDER HERMES POP-UP
             createOrder: function (data, actions) {
 
-                // CLIENT SIDE ORDER CREATE
+                // SERVER SIDE ORDER CREATE
                 return fetch('/v2/orders', {
                     method: 'POST',
                     body: '{}',
@@ -255,11 +229,12 @@
                 })
                 .then(response => response.json())
                 .then(json => {
-                    return json.id;
+                    return json.id; // returns the order id here
                 });
             },
             onApprove: function (data, actions) {
 
+                // First, we call the Order Get from the server to retrieve the approved order
                 const orderId = data.orderID;
                 console.log("onApprove data: ", data);
                 return fetch(`/v2/orders/${orderId}`, {
@@ -269,20 +244,23 @@
                     }
                 }).then(function (response) {
                     return response.json();
-                }).then(function (order) {
+                }).then(function (info) {
+                    const order = info.response;
                     console.log("Order Data: ", order);
 
-                    // show the order data
-                    $("#orderData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
-                    $("#orderId").val(orderId);
+                    // show the request/response data
+                    presentPayload(info);
+
+                    // save the id for later
+                    $("#orderId").val(order.id);
 
                     // show or hide forms
                     $("#paymentForm").hide();
                     $("#authForm").show();
 
                     // update the "steps"
-                    $("#stepOne").addClass("disabled").removeClass("active");
-                    $("#stepTwo").addClass("active").removeClass("disabled");
+                    $("#stepOne").removeClass("active");
+                    $("#stepTwo").addClass("active");
 
                     // handle the authorization click
                     $("#authorize").click(function () {
@@ -298,14 +276,17 @@
                             }
                         }).then(function (response) {
                             return response.json();
-                        }).then(function (order) {
+                        }).then(function (info) {
+                            const order = info.response;
                             console.log("Order/Auth data: ", order);
 
                             const auth = order.purchase_units[0].payments.authorizations[0]
                             var authId = auth.id;
 
-                            // show the authorization data
-                            $("#authData").append("<pre>" + JSON.stringify(order, null, 2) + "</pre>");
+                            // show the request/response data
+                            presentPayload(info);
+
+                            // save the id for later
                             $("#authId").val(authId);
 
                             // show or hide forms 
@@ -313,8 +294,8 @@
                             $("#captureForm").show();
 
                             // update the "steps"
-                            $("#stepTwo").addClass("disabled").removeClass("active");
-                            $("#stepThree").addClass("active").removeClass("disabled");
+                            $("#stepTwo").removeClass("active");
+                            $("#stepThree").addClass("active");
 
                             $("#mainSection").dimmer("hide");
 
@@ -331,17 +312,18 @@
                                     }
                                 }).then(function (response) {
                                     return response.json();
-                                }).then(function (capture) {
-                                    // show the authorization data
-                                    $("#captureData").append("<pre>" + JSON.stringify(capture, null, 2) + "</pre>");
+                                }).then(function (info) {
 
+                                    // show the request/response data
+                                    presentPayload(info);
+                                    
                                     // show or hide forms 
                                     $("#captureForm").hide();
                                     $("#finalForm").show();
 
                                     // update the "steps"
-                                    $("#stepThree").addClass("disabled").removeClass("active");
-                                    $("#stepFour").addClass("active").removeClass("disabled");
+                                    $("#stepThree").removeClass("active");
+                                    $("#stepFour").addClass("active");
 
                                     $("#mainSection").dimmer("hide");
 
@@ -369,6 +351,13 @@
             /* function goes in here */
             location.reload()
         });
+        $('.ui.accordion')
+            .accordion()
+            ;
+
+        $('.ui.dropdown')
+            .dropdown()
+            ;
     </script>
 </body>
 
