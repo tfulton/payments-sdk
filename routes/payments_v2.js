@@ -1,10 +1,11 @@
-var express = require('express');
-var router = express.Router();
-var config = require('config');
-var fetch = require('node-fetch');
-var buildAccessHeader = require('./authUtils').buildAccessHeader;
+const express = require('express');
+const router = express.Router();
+const config = require('config');
+const fetch = require('node-fetch');
+const buildAccessHeader = require('./authUtils').buildAccessHeader;
 
-var baseURL = config.get("env.sandbox.rest.baseURL");
+const baseURL = config.get("env.sandbox.rest.baseURL");
+const ResponseInfo = require("./dataUtils").ResponseInfo;
 
 // do some initial prep
 router.use(function(req, res, next){
@@ -16,13 +17,13 @@ router.use(buildAccessHeader);
 // CAPTURE an order
 router.post('/authorizations/:authId/capture', function(req, res, next){
     try {
-        var authId = req.params.authId;
+        const authId = req.params.authId;
 
-        var payload = {
+        const payload = {
             final_capture: true
         }
-
-        fetch(`${baseURL}/v2/payments/authorizations/${authId}/capture`, {
+        const url = `${baseURL}/v2/payments/authorizations/${authId}/capture`; 
+        fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
             body: JSON.stringify(payload)
@@ -30,7 +31,8 @@ router.post('/authorizations/:authId/capture', function(req, res, next){
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.status(201).send(json);
+            const responseInfo = new ResponseInfo('POST', url, payload, json);
+            res.status(201).send(responseInfo);
         }).catch(function (error) {
             res.status(400).send(JSON.stringify(error)); 
         });
