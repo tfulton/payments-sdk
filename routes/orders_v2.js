@@ -19,6 +19,7 @@ router.use(buildAccessHeader);
 // CREATE an order
 router.post('/', function (req, res, next) {
 
+    // res.status(500).send(JSON.stringify(new Error("Test Error")));
     try {
         console.log("BODY: ", req.body);
         var cart = req.body;

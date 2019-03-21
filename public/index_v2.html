@@ -26,12 +26,16 @@
     <div class="ui top attached menu">
         <div class="ui container">
             <a class="active item" id="home">
-                <i class="home icon"></i>
+                <i class="home icon"></i>PayPal JavaScript SDK&nbsp;
             </a>
-            <div class="header item">
-                PayPal JavaScript SDK&nbsp;
-                <i class="icon angle double right"></i>
-                &nbsp;Client Orders
+            <div class="ui dropdown item">
+                Integration
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item">Client / Orders v2</a>
+                    <a class="item active selected">Server Orders v2 (AS2)</a>
+                    <a class="item">Server NVP (AS2)</a>
+                </div>
             </div>
         </div>
     </div>
@@ -39,77 +43,91 @@
     <!-- END: HEADER -->
     
     <!-- BEGIN: MAIN CONTENT -->
-    <!-- <div id="mainSection" class="dimmable"> -->
-        <div class="ui top attached dimmable tabular menu">
-            <a class="item active" data-tab="first" id="stepOne">Begin</a>
-            <a class="item" data-tab="second" id="stepTwo">Review</a>
-            <a class="item" data-tab="third" id="stepThree">Capture</a>
-            <a class="item" data-tab="third" id="stepFour">End</a>
+    <div class="ui container" id="mainSection">
+        <p></p>
+        <h3 class="header">Server Orders v2 (AS2)</h3>
+    <div class="ui top attached tabular menu">
+        <a class="item active" data-tab="first" id="stepOne">Begin</a>
+        <a class="item" data-tab="second" id="stepTwo">Review</a>
+        <a class="item" data-tab="third" id="stepThree">Capture</a>
+        <a class="item" data-tab="third" id="stepFour">End</a>
+    </div>
+    
+    <div class="ui bottom attached tab segment active">
+
+        <div class="ui negative message hidden" id="errorMessage">
+            <i class="close icon"></i>
+            <div class="header" id="errorMessageHeader"></div>
+            <p id="errorMessageContent"></p>
+        </div>
+
+        <div class="ui message" id="infoMessage">
+            <div class="header"></div>
+            <p></p>
+        </div>
+
+        <!-- PAYMENT FORM -->
+        <div class="ui container" id="paymentForm">
+            <div id="paypal-button-container"></div>
         </div>
     
-        <div class="ui bottom attached tab segment active">
+        <!-- ORDER REVIEW FORM -->
+        <div class="ui form" id="authForm" hidden>
+            <input type="hidden" id="orderId" />
+            <button class="ui primary button" id="authorize">
+                Save+Authorize Order
+            </button>
+            <button class="ui button" id="cancel">
+                Discard
+            </button>
+        </div>
     
-            <!-- PAYMENT FORM -->
-            <div class="ui form" id="paymentForm">
-                <div id="paypal-button-container"></div>
+        <!-- AUTH REVIEW FORM -->
+        <div class="ui form" id="captureForm" hidden>
+            <input type="hidden" id="authId" />
+            <button class="ui primary button" id="capture">
+                Capture Auth
+            </button>
+            <button class="ui button" id="cancel">
+                Discard
+            </button>
+        </div>
+    
+        <!-- CAPTURE REVIEW FORM -->
+        <div class="ui form" id="finalForm" hidden>
+            <button class="ui primary button" id="cancel">
+                Do it Again
+            </button>
+        </div>
+    
+        <!-- REQUEST/RESPONSE INFO HERE -->
+        <div class="ui divider"></div>
+        <div class="ui styled fluid accordion">
+            <div class="title">
+                <i class="dropdown icon"></i>
+                Request URL
             </div>
-    
-            <!-- ORDER REVIEW FORM -->
-            <div class="ui form" id="authForm" hidden>
-                <input type="hidden" id="orderId" />
-                <button class="ui primary button" id="authorize">
-                    Save+Authorize Order
-                </button>
-                <button class="ui button" id="cancel">
-                    Discard
-                </button>
+            <div class="content">
+                <p class="transition hidden" id="requestURL"></p>
             </div>
-    
-            <!-- AUTH REVIEW FORM -->
-            <div class="ui form" id="captureForm" hidden>
-                <input type="hidden" id="authId" />
-                <button class="ui primary button" id="capture">
-                    Capture Auth
-                </button>
-                <button class="ui button" id="cancel">
-                    Discard
-                </button>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                Request
             </div>
-    
-            <!-- CAPTURE REVIEW FORM -->
-            <div class="ui form" id="finalForm" hidden>
-                <button class="ui primary button" id="cancel">
-                    Do it Again
-                </button>
+            <div class="content">
+                <p class="transition hidden" id="requestPayload"></p>
             </div>
-    
-            <!-- REQUEST/RESPONSE INFO HERE -->
-            <div class="ui divider"></div>
-            <div class="ui styled fluid accordion">
-                <div class="title">
-                    <i class="dropdown icon"></i>
-                    Request URL
-                </div>
-                <div class="content">
-                    <p class="transition hidden" id="requestURL"></p>
-                </div>
-                <div class="title">
-                    <i class="dropdown icon"></i>
-                    Request
-                </div>
-                <div class="content">
-                    <p class="transition hidden" id="requestPayload"></p>
-                </div>
-                <div class="title">
-                    <i class="dropdown icon"></i>
-                    Response
-                </div>
-                <div class="content">
-                    <p class="transition hidden" id="responsePayload">N/A</p>
-                </div>
+            <div class="title">
+                <i class="dropdown icon"></i>
+                Response
+            </div>
+            <div class="content">
+                <p class="transition hidden" id="responsePayload">N/A</p>
             </div>
         </div>
-    <!-- </div> -->
+    </div>
+
+    </div>
     <!-- END: MAIN CONTENT -->
     
     <script>
@@ -198,17 +216,12 @@
             ]
         }
 
-        // set the text area with payment data
+        // set the info message
+        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a request to our custom server-side where we create a new order via Orders v2.")
+
+        // set the request/response info
         $("#requestURL").html("<strong>POST </strong>https://api.sandbox.paypal.com/v2/checkout/orders");
         $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
-
-        function presentPayload(info){
-            $("#requestType").html(info.type);
-            $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
-            $("#requestPayload").html(JSON.stringify(info.request, null, 1));
-            $("#responsePayload").html("<pre>" + JSON.stringify(info.response, null, 1) + "</pre>");
-            return;
-        }
 
         paypal.Buttons({
             style: {
@@ -227,10 +240,14 @@
                     },
                     body: JSON.stringify(paymentData)
                 })
-                .then(response => response.json())
-                .then(json => {
-                    return json.id; // returns the order id here
-                });
+                    .then(response => response.json())
+                    .then(json => {
+                        return json.id; // returns the order id here
+                    });
+            },
+            onError: function(error){
+                console.log("Error in callback: ", error);
+                presentError("We have an error in an SDK callback.", error.message);
             },
             onApprove: function (data, actions) {
 
@@ -248,7 +265,11 @@
                     const order = info.response;
                     console.log("Order Data: ", order);
 
-                    // show the request/response data
+                    // show a message and present the request/response data 
+                    var message = "<ul class='list'><li>Customer approval completed</li>" +
+                        "<li>The order details were retrieved via Orders v2 and are viewable below.</li>" +
+                        "<li>Click the button and we will 'Save' then 'Authorize' via our custom server backend.</li></ul>";
+                    presentInfoMessage("Review", message);
                     presentPayload(info);
 
                     // save the id for later
@@ -284,6 +305,11 @@
                             var authId = auth.id;
 
                             // show the request/response data
+                            // show a message and present the request/response data 
+                            var message = "<ul class='list'><li>Save and Auth successful.</li>" +
+                                "<li>The response details returned in the order authorization are below.</li>" +
+                                "<li>Click the button and we will 'Capture' the authorization using a server side call to Payments V2 REST.</li></ul>";
+                            presentInfoMessage("Capture", message);
                             presentPayload(info);
 
                             // save the id for later
@@ -315,6 +341,10 @@
                                 }).then(function (info) {
 
                                     // show the request/response data
+                                    var message = "<ul class='list'><li>End.</li>" +
+                                        "<li>We sucessfully captured the auth.</li>" +
+                                        "<li>Capture response details are viewable below.</li></ul>";
+                                    presentInfoMessage("Capture", message);
                                     presentPayload(info);
                                     
                                     // show or hide forms 
@@ -345,6 +375,25 @@
             }
         }).render('#paypal-button-container');
 
+        function presentPayload(info){
+            $("#requestType").html(info.type);
+            $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
+            $("#requestPayload").html(JSON.stringify(info.request, null, 1));
+            $("#responsePayload").html("<pre>" + JSON.stringify(info.response, null, 1) + "</pre>");
+            return;
+        }
+
+        function presentError(header, message) {
+            $("#errorMessageHeader").html(header);
+            $("#errorMessageContent").html(message);
+            $("#errorMessage").show();
+        }
+
+        function presentInfoMessage(header, message) {
+            $("#infoMessage .header").html(header);
+            $("#infoMessage p").html(message);
+        }
+
     </script>
     <script>
         $("#home, #cancel, #cancel2, #cancel3").click(function () {
@@ -357,6 +406,16 @@
 
         $('.ui.dropdown')
             .dropdown()
+            ;
+
+        $('.message .close')
+            .on('click', function () {
+                $("#errorMessage").hide();
+                // $(this)
+                //     .closest('.message')
+                //     .transition('fade')
+                //     ;
+            })
             ;
     </script>
 </body>
