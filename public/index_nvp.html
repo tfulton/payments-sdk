@@ -22,130 +22,109 @@
 
 <body>
 
-    <!-- BEGIN: STEP HEADER -->
-    <div class="ui menu">
-        <a class="active item" id="home">
-            <i class="home icon"></i> Home
-        </a>
-    </div>
-    <div class="ui four top attached mini steps">
-        <div class="active step" id="stepOne">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Approve</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepTwo">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Review</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepThree">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Capture</div>
-            </div>
-        </div>
-        <div class="disabled step" id="stepFour">
-            <i class="angle double right icon"></i>
-            <div class="content">
-                <div class="title">Complete</div>
-            </div>
-        </div>
-    </div>
-    <!-- END: STEP HEADER -->
-
-    <!-- BEGIN: MAIN CONTENT -->
-    <div class="ui dimmable attached segment" id="mainSection">
-        <p>
-            <p>
-                <div class="ui grid">
-
-                    <div class="row">
-                        <div class="column">
-                            <h3 class="ui header">Payments SDK - Sample Test</h3>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="column">
-
-                            <!-- PAYMENT FORM -->
-                            <div class="ui form" id="paymentForm">
-                                <div class="ui stackable internally celled grid">
-                                    <div class="four wide column">
-                                        <div id="paypal-button-container"></div>
-                                    </div>
-                                    <div class="eight wide column" id="paymentData">
-                                        <h4 class="ui header">Payment Data</h4>
-                                        <p></p>
-                                        <p></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ORDER REVIEW FORM -->
-                            <div class="ui form" id="authForm" hidden>
-                                <div class="ui stackable internally celled grid">
-                                    <div class="four wide column">
-                                        <input type="hidden" id="token" />
-                                        <input type="hidden" id="payerId" />
-                                        <button class="ui primary button" id="authorize">
-                                            DoEC/DoAuth
-                                        </button>
-                                        <button class="ui button" id="cancel">
-                                            Discard
-                                        </button>
-                                    </div>
-                                    <div class="eight wide column" id="orderData">
-                                        <h4 class="ui header">GetEC Response</h4>
-                                        <p></p>
-                                        <p></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- AUTH REVIEW FORM -->
-                            <div class="ui form" id="captureForm" hidden>
-                                <div class="ui stackable internally celled grid">
-                                    <div class="four wide column">
-                                        <input type="hidden" id="transactionId" />
-                                        <button class="ui primary button" id="capture">
-                                            DoCapture
-                                        </button>
-                                        <button class="ui button" id="cancel">
-                                            Discard
-                                        </button>
-                                    </div>
-                                    <div class="eight wide column" id="authData">
-                                        <h4 class="ui header">DoAuth Response</h4>
-                                        <p></p>
-                                        <p></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- CAPTURE REVIEW FORM -->
-                            <div class="ui form" id="finalForm" hidden>
-                                <div class="ui stackable internally celled grid">
-                                    <div class="four wide column">
-                                        <button class="ui primary button" id="cancel">
-                                            Do it Again
-                                        </button>
-                                    </div>
-                                    <div class="eight wide column" id="captureData">
-                                        <h4 class="ui header">DoCapture Response</h4>
-                                        <p></p>
-                                        <p></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
+    <!-- BEGIN: HEADER -->
+    <div class="ui top attached menu">
+        <div class="ui container">
+            <a class="active item" id="home">
+                <i class="home icon"></i>PayPal JavaScript SDK&nbsp;
+            </a>
+            <div class="ui dropdown item">
+                Integration
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item" href="/">Client / Orders v2</a>
+                    <a class="item" href="/v2">Server Orders v2 (AS2)</a>
+                    <a class="item active selected" href="/nvp">Server NVP (AS2)</a>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BEGIN: MAIN CONTENT -->
+    <div class="ui container" id="mainSection">
+        <p></p>
+        <h3 class="header">Server NVP (AS2)</h3>
+        <div class="ui top attached tabular menu">
+            <a class="item active" data-tab="first" id="stepOne">Begin</a>
+            <a class="item" data-tab="second" id="stepTwo">Review</a>
+            <a class="item" data-tab="third" id="stepThree">Capture</a>
+            <a class="item" data-tab="third" id="stepFour">End</a>
+        </div>
+    
+        <div class="ui bottom attached tab segment active">
+    
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+            </div>
+    
+            <div class="ui message" id="infoMessage">
+                <div class="header"></div>
+                <p></p>
+            </div>
+    
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+                <div id="paypal-button-container"></div>
+            </div>
+    
+            <!-- ORDER REVIEW FORM -->
+            <div class="ui form" id="authForm" hidden>
+                <input type="hidden" id="orderId" />
+                <button class="ui primary button" id="authorize">
+                    DoEC and DoAuth
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- AUTH REVIEW FORM -->
+            <div class="ui form" id="captureForm" hidden>
+                <input type="hidden" id="authId" />
+                <button class="ui primary button" id="capture">
+                    DoCapture
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+    
+            <!-- REQUEST/RESPONSE INFO HERE -->
+            <div class="ui divider"></div>
+            <div class="ui styled fluid accordion">
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request URL
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="requestURL"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="requestPayload"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Response
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="responsePayload">N/A</p>
+                </div>
+            </div>
+        </div>
+    
     </div>
     <!-- END: MAIN CONTENT -->
 
@@ -234,12 +213,16 @@
             ]
         }
 
-        // set the text area with payment data
-        $("#paymentData").append("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+        // set the info message
+        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a request to our custom server-side where we call <strong>SetEC</strong>.")
+
+        // set the request/response info
+        $("#requestURL").html("<strong>POST </strong>https://api-3t.sandbox.paypal.com/nvp");
+        $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
 
         paypal.Buttons({
             style: {
-                // height: 25
+                height: 25
             },
 
             createOrder: function (data, actions) {
@@ -260,10 +243,15 @@
                     error => console.error('Error:', error)
                 );
             },
+            onError: function(error){
+                console.log("Error in callback: ", error);
+                presentError("We have an error in an SDK callback.", error.message);
+            },
             onApprove: function (data, actions) {
 
                 // The EC token comes back in an 'orderID' named field.
                 const orderId = data.orderID;
+                const payerId = data.payerID;
                 console.log("onApprove data: ", data);
                 return fetch(`/nvp/getEC/${orderId}`, {
                     method: 'GET',
@@ -271,14 +259,24 @@
                         "Content-Type": "application/json"
                     }
                 })
-                .then(res => res.json())
-                .then(getEcResp => {
+                .then(response => {
+                    return response.json()
+                })
+                .then(info => {
+                    const getEcResp = info.response;
                     console.log("getEcResp Data: ", getEcResp);
 
-                    // show the order data and store hidden input fields
-                    $("#orderData").append("<pre>" + JSON.stringify(getEcResp, null, 2) + "</pre>");
-                    $("#token").val(getEcResp.TOKEN);
-                    $("#payerId").val(getEcResp.PAYERID);
+                    // show a message and present the request/response data 
+                    var message = "<ul class='list'><li>Customer approval completed</li>" +
+                        "<li>GetEC details were retrieved and are viewable below.</li>" +
+                        "<li>Click the button and we will call DoEC and DoAuth via our server backend.</li></ul>";
+                    presentInfoMessage("Review", message);
+                    presentPayload(info);
+
+                    // // show the order data and store hidden input fields
+                    // // $("#orderData").append("<pre>" + JSON.stringify(getEcResp, null, 2) + "</pre>");
+                    // $("#token").val(orderId);
+                    // $("#payerId").val(payerId);
 
                     // show or hide forms
                     $("#paymentForm").hide();
@@ -302,20 +300,24 @@
                                 "Content-Type": "application/json"
                             },
                             body: (function () {
-                                paymentData.token = $("#token").val();
-                                paymentData.payerId = $("#payerId").val();
+                                paymentData.token = orderId;
+                                paymentData.payerId = payerId;
                                 return JSON.stringify(paymentData);
                             })()
                         }).then(function (response) {
                             return response.json();
-                        }).then(function (auth) {
+                        }).then(function (info) {
+                            const auth = info.response;
                             console.log("Authorization data: ", auth);
+                            $("#transactionId").val(auth.TRANSACTIONID);
 
-                            // show the authorization data and store hidden input fields
-                            $("#authData").append("<pre>" + JSON.stringify(auth, null, 2) + "</pre>");
-                            var transactionId = auth.TRANSACTIONID;
-                            $("#transactionId").val(transactionId);
-                            console.log("transactionId: ", $("#transactionId").val());
+                            // show the request/response data
+                            // show a message and present the request/response data 
+                            var message = "<ul class='list'><li>DoEC and DoAuth successful.</li>" +
+                                "<li>The response details returned in the DoAuth are below.</li>" +
+                                "<li>Click the button and we will 'Capture' the authorization using a server side call to DoCapture.</li></ul>";
+                            presentInfoMessage("Capture", message);
+                            presentPayload(info);
 
                             // show or hide forms 
                             $("#authForm").hide();
@@ -328,7 +330,7 @@
                             $("#mainSection").dimmer("hide");
 
                             $("#capture").click(function () {
-                                console.log("Capturing the auth: ", transactionId);
+                                console.log("Capturing the auth: ", auth.TRANSACTIONID);
 
                                 // show the dimmer / loader
                                 $("#mainSection").dimmer("show");
@@ -339,15 +341,20 @@
                                         "Content-Type": "application/json"
                                     },
                                     body: (function () {
-                                        paymentData.transactionId = $("#transactionId").val();
+                                        paymentData.transactionId = auth.TRANSACTIONID;
                                         return JSON.stringify(paymentData);
                                     })()
                                 }).then(function (response) {
                                     console.log("doCapture RESPONSE: ", response);
                                     return response.json();
-                                }).then(function (capture) {
-                                    // show the authorization data
-                                    $("#captureData").append("<pre>" + JSON.stringify(capture, null, 2) + "</pre>");
+                                }).then(function (info) {
+
+                                    // show the request/response data
+                                    // show a message and present the request/response data 
+                                    var message = "<ul class='list'><li>DoCapture successful.</li>" +
+                                        "<li>The response details returned in the DoCapture are below.</li></ul>";
+                                    presentInfoMessage("Capture", message);
+                                    presentPayload(info);
 
                                     // show or hide forms 
                                     $("#captureForm").hide();
@@ -377,13 +384,50 @@
             }
         }).render('#paypal-button-container');
 
+        function presentPayload(info){
+            $("#requestType").html(info.type);
+            $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
+            $("#requestPayload").html("<pre>" + JSON.stringify(info.request, null, 1) + "</pre>");
+            $("#responsePayload").html("<pre>" + JSON.stringify(info.response, null, 1) + "</pre>");
+            return;
+        }
+
+        function presentError(header, message) {
+            $("#errorMessageHeader").html(header);
+            $("#errorMessageContent").html(message);
+            $("#errorMessage").show();
+        }
+
+        function presentInfoMessage(header, message) {
+            $("#infoMessage .header").html(header);
+            $("#infoMessage p").html(message);
+        }
+
     </script>
     <script>
-        $("#home, #cancel, #cancel2, #cancel3").click(function () {
-            /* function goes in here */
-            location.reload()
-        });
-    </script>
+            $("#home, #cancel, #cancel2, #cancel3").click(function () {
+                /* function goes in here */
+                location.reload()
+            });
+            $('.ui.accordion')
+                .accordion()
+                ;
+    
+            $('.ui.dropdown')
+                .dropdown(this)
+                console.log("Dropdown: ", this);
+                ;
+    
+            $('.message .close')
+                .on('click', function () {
+                    $("#errorMessage").hide();
+                    // $(this)
+                    //     .closest('.message')
+                    //     .transition('fade')
+                    //     ;
+                })
+                ;
+        </script>
 </body>
 
 </html>

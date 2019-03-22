@@ -6,6 +6,7 @@ const querystring = require('querystring');
 
 var creds = config.get("env.sandbox.nvp.credentials");
 var baseURL = config.get("env.sandbox.nvp.baseURL");
+const ResponseInfo = require("./dataUtils").ResponseInfo;
 
 // do some initial prep
 router.use(function (req, res, next) {
@@ -144,15 +145,13 @@ router.post('/setEC', function (req, res, next) {
     }
 });
 
-
-
 router.get('/getEC/:token', function (req, res, next) {
 
     try {
         const token = req.params.token;
         console.log("TOKEN: ", token);
 
-        const params = new URLSearchParams(baseURL);
+        const params = new URLSearchParams();
         params.append("USER", creds.user);
         params.append("PWD", creds.pwd);
         params.append("SIGNATURE", creds.signature);
@@ -160,6 +159,11 @@ router.get('/getEC/:token', function (req, res, next) {
         params.append("METHOD", "GetExpressCheckoutDetails");
         params.append("TOKEN", token);
 
+        // construct a request payload obj
+        var reqBody = {}; const entries = params.entries();
+        for (const entry of entries){
+            reqBody[entry[0]] = entry[1];
+        };
 
 
         console.log("Starting the fetch for GetExpressCheckoutDetails.");
@@ -171,11 +175,12 @@ router.get('/getEC/:token', function (req, res, next) {
             return response.text();
         }).then(function (resp) {
             console.log("Fetch RESPONSE: ", resp);
-            
             var body = querystring.parse(resp);
+            const responseInfo = new ResponseInfo('GET', baseURL, reqBody, body);
             if (body.ACK === 'Success') 
             {
-                res.status(201).send(JSON.stringify(body));
+                // res.status(201).send(JSON.stringify(body));
+                res.status(201).send(JSON.stringify(responseInfo));
             }
             else {
                 res.status(400).send(JSON.stringify(
@@ -283,7 +288,11 @@ function doEC(req, res, next) {
            *      - Shipping insurance and related fields
            */
 
-          console.log("PARAMS: ", querystring.parse(params.toString()));
+        // construct a request payload obj
+        var reqBody = {}; const entries = params.entries();
+        for (const entry of entries){
+            reqBody[entry[0]] = entry[1];
+        };
 
         console.log("Starting the fetch for DoExpressCheckoutPayment.");
         fetch(baseURL, {
@@ -294,11 +303,10 @@ function doEC(req, res, next) {
             return response.text();
         }).then(function (resp) {
             console.log("Fetch RESPONSE: ", resp);
-            
             const body = querystring.parse(resp);
-            console.log("TRANSACTION ID #1: ", body.PAYMENTINFO_0_TRANSACTIONID);
+            const responseInfo = new ResponseInfo('POST', baseURL, reqBody, body);
             res.locals.transactionId = body.PAYMENTINFO_0_TRANSACTIONID;
-            res.locals.body = body;
+            res.locals.body = responseInfo;
             next();
         }).catch(function (error) {
             console.log("Error: ", error);
@@ -322,7 +330,7 @@ function doAuth(req, res, next) {
 
         console.log("Entering the doAuth function.");
         const transactionId = res.locals.transactionId;
-        console.log("TRANSACTION ID #2: ", transactionId);
+        console.log("TRANSACTION ID: ", transactionId);
 
         const params = new URLSearchParams(baseURL);
         params.append("USER", creds.user);
@@ -334,7 +342,11 @@ function doAuth(req, res, next) {
         params.append("AMT", cart.purchase_units[0].amount.value);
         params.append("CURRENCYCODE", cart.purchase_units[0].amount.currency_code);
 
-
+        // construct a request payload obj
+        var reqBody = {}; const entries = params.entries();
+        for (const entry of entries){
+            reqBody[entry[0]] = entry[1];
+        };
 
         console.log("Starting the fetch for DoAuthorization.");
         fetch(baseURL, {
@@ -345,7 +357,9 @@ function doAuth(req, res, next) {
             return response.text();
         }).then(function (resp) {
             console.log("Fetch RESPONSE: ", resp);
-            res.locals.doAuthBody = querystring.parse(resp);;
+            const body = querystring.parse(resp);
+            const responseInfo = new ResponseInfo('POST', baseURL, reqBody, body);
+            res.locals.body = responseInfo;
             next();
         }).catch(function (error) {
             console.log("Error: ", error);
@@ -364,35 +378,40 @@ router.post('/doAuth', doAuth, function (req, res, next) {
 
 const combinedDoECDoAuth = [doEC, doAuth];
 router.post('/doCombined', combinedDoECDoAuth, function (req, res, next) {
-    res.status(201).send(JSON.stringify(res.locals.doAuthBody));
+    res.status(201).send(JSON.stringify(res.locals.body));
 });
 
 router.post('/doCapture', function doCapture(req, res, next) {
 
-    console.log("Entering the doCapture function.");
-
-    var cart = req.body;
-    var transactionId = cart.transactionId;
-    console.log("transactionId: ", transactionId);
-
-    const params = new URLSearchParams(baseURL);
-    params.append("USER", creds.user);
-    params.append("PWD", creds.pwd);
-    params.append("SIGNATURE", creds.signature);
-    params.append("VERSION", "204.0");
-    params.append("METHOD", "DoCapture");
-    params.append("AUTHORIZATIONID", transactionId);
-    params.append("AMT", cart.purchase_units[0].amount.value);
-    params.append("CURRENCYCODE", cart.purchase_units[0].amount.currency_code);
-    params.append("COMPLETETYPE", "Complete"); // Complete | NotComplete
-    params.append("INVNUM", "INV_001");
-    params.append("NOTE", "This is the final capture!");
-    params.append("SOFTDESCRIPTOR", "TESTSTORE");
-    // params.append("MSGSUBID", "");
-    // params.append("STOREID", "");
-    // params.append("TERMINALID", "");
-
     try {
+        console.log("Entering the doCapture function.");
+
+        var cart = req.body;
+        var transactionId = cart.transactionId;
+        console.log("transactionId: ", transactionId);
+
+        const params = new URLSearchParams(baseURL);
+        params.append("USER", creds.user);
+        params.append("PWD", creds.pwd);
+        params.append("SIGNATURE", creds.signature);
+        params.append("VERSION", "204.0");
+        params.append("METHOD", "DoCapture");
+        params.append("AUTHORIZATIONID", transactionId);
+        params.append("AMT", cart.purchase_units[0].amount.value);
+        params.append("CURRENCYCODE", cart.purchase_units[0].amount.currency_code);
+        params.append("COMPLETETYPE", "Complete"); // Complete | NotComplete
+        params.append("INVNUM", "INV_001");
+        params.append("NOTE", "This is the final capture!");
+        params.append("SOFTDESCRIPTOR", "TESTSTORE");
+        // params.append("MSGSUBID", "");
+        // params.append("STOREID", "");
+        // params.append("TERMINALID", "");
+
+        // construct a request payload obj
+        var reqBody = {}; const entries = params.entries();
+        for (const entry of entries) {
+            reqBody[entry[0]] = entry[1];
+        };
 
         console.log("Starting the fetch for DoCapture.");
         fetch(baseURL, {
@@ -405,9 +424,9 @@ router.post('/doCapture', function doCapture(req, res, next) {
             console.log("Fetch RESPONSE: ", resp);
 
             var body = querystring.parse(resp);
-            if (body.ACK === 'Success') 
-            {
-                res.status(201).send(JSON.stringify(body));
+            const responseInfo = new ResponseInfo('POST', baseURL, reqBody, body);
+            if (body.ACK === 'Success') {
+                res.status(201).send(JSON.stringify(responseInfo));
             }
             else {
                 res.status(400).send(JSON.stringify(

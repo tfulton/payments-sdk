@@ -32,9 +32,9 @@
                 Integration
                 <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a class="item">Client / Orders v2</a>
-                    <a class="item active selected">Server Orders v2 (AS2)</a>
-                    <a class="item">Server NVP (AS2)</a>
+                    <a class="item" href="/">Client / Orders v2</a>
+                    <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
+                    <a class="item" href="/nvp">Server NVP (AS2)</a>
                 </div>
             </div>
         </div>
@@ -46,87 +46,87 @@
     <div class="ui container" id="mainSection">
         <p></p>
         <h3 class="header">Server Orders v2 (AS2)</h3>
-    <div class="ui top attached tabular menu">
-        <a class="item active" data-tab="first" id="stepOne">Begin</a>
-        <a class="item" data-tab="second" id="stepTwo">Review</a>
-        <a class="item" data-tab="third" id="stepThree">Capture</a>
-        <a class="item" data-tab="third" id="stepFour">End</a>
-    </div>
-    
-    <div class="ui bottom attached tab segment active">
-
-        <div class="ui negative message hidden" id="errorMessage">
-            <i class="close icon"></i>
-            <div class="header" id="errorMessageHeader"></div>
-            <p id="errorMessageContent"></p>
-        </div>
-
-        <div class="ui message" id="infoMessage">
-            <div class="header"></div>
-            <p></p>
-        </div>
-
-        <!-- PAYMENT FORM -->
-        <div class="ui container" id="paymentForm">
-            <div id="paypal-button-container"></div>
+        <div class="ui top attached tabular menu">
+            <a class="item active" data-tab="first" id="stepOne">Begin</a>
+            <a class="item" data-tab="second" id="stepTwo">Review</a>
+            <a class="item" data-tab="third" id="stepThree">Capture</a>
+            <a class="item" data-tab="third" id="stepFour">End</a>
         </div>
     
-        <!-- ORDER REVIEW FORM -->
-        <div class="ui form" id="authForm" hidden>
-            <input type="hidden" id="orderId" />
-            <button class="ui primary button" id="authorize">
-                Save+Authorize Order
-            </button>
-            <button class="ui button" id="cancel">
-                Discard
-            </button>
+        <div class="ui bottom attached tab segment active">
+    
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+            </div>
+    
+            <div class="ui message" id="infoMessage">
+                <div class="header"></div>
+                <p></p>
+            </div>
+    
+            <!-- PAYMENT FORM -->
+            <div class="ui container" id="paymentForm">
+                <div id="paypal-button-container"></div>
+            </div>
+    
+            <!-- ORDER REVIEW FORM -->
+            <div class="ui form" id="authForm" hidden>
+                <input type="hidden" id="orderId" />
+                <button class="ui primary button" id="authorize">
+                    Save+Authorize Order
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- AUTH REVIEW FORM -->
+            <div class="ui form" id="captureForm" hidden>
+                <input type="hidden" id="authId" />
+                <button class="ui primary button" id="capture">
+                    Capture Auth
+                </button>
+                <button class="ui button" id="cancel">
+                    Discard
+                </button>
+            </div>
+    
+            <!-- CAPTURE REVIEW FORM -->
+            <div class="ui form" id="finalForm" hidden>
+                <button class="ui primary button" id="cancel">
+                    Do it Again
+                </button>
+            </div>
+    
+            <!-- REQUEST/RESPONSE INFO HERE -->
+            <div class="ui divider"></div>
+            <div class="ui styled fluid accordion">
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request URL
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="requestURL"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Request
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="requestPayload"></p>
+                </div>
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    Response
+                </div>
+                <div class="content">
+                    <p class="transition hidden" id="responsePayload">N/A</p>
+                </div>
+            </div>
         </div>
     
-        <!-- AUTH REVIEW FORM -->
-        <div class="ui form" id="captureForm" hidden>
-            <input type="hidden" id="authId" />
-            <button class="ui primary button" id="capture">
-                Capture Auth
-            </button>
-            <button class="ui button" id="cancel">
-                Discard
-            </button>
-        </div>
-    
-        <!-- CAPTURE REVIEW FORM -->
-        <div class="ui form" id="finalForm" hidden>
-            <button class="ui primary button" id="cancel">
-                Do it Again
-            </button>
-        </div>
-    
-        <!-- REQUEST/RESPONSE INFO HERE -->
-        <div class="ui divider"></div>
-        <div class="ui styled fluid accordion">
-            <div class="title">
-                <i class="dropdown icon"></i>
-                Request URL
-            </div>
-            <div class="content">
-                <p class="transition hidden" id="requestURL"></p>
-            </div>
-            <div class="title">
-                <i class="dropdown icon"></i>
-                Request
-            </div>
-            <div class="content">
-                <p class="transition hidden" id="requestPayload"></p>
-            </div>
-            <div class="title">
-                <i class="dropdown icon"></i>
-                Response
-            </div>
-            <div class="content">
-                <p class="transition hidden" id="responsePayload">N/A</p>
-            </div>
-        </div>
-    </div>
-
     </div>
     <!-- END: MAIN CONTENT -->
     
@@ -259,9 +259,9 @@
                     headers: {
                         "Content-Type": "application/json"
                     }
-                }).then(function (response) {
+                }).then(response => {
                     return response.json();
-                }).then(function (info) {
+                }).then(info => {
                     const order = info.response;
                     console.log("Order Data: ", order);
 
@@ -378,7 +378,7 @@
         function presentPayload(info){
             $("#requestType").html(info.type);
             $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
-            $("#requestPayload").html(JSON.stringify(info.request, null, 1));
+            $("#requestPayload").html("<pre>" + JSON.stringify(info.request, null, 1) + "</pre>");
             $("#responsePayload").html("<pre>" + JSON.stringify(info.response, null, 1) + "</pre>");
             return;
         }
@@ -405,7 +405,8 @@
             ;
 
         $('.ui.dropdown')
-            .dropdown()
+            .dropdown(this)
+            console.log("Dropdown: ", JSON.stringify(this));
             ;
 
         $('.message .close')
