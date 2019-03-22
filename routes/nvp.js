@@ -160,11 +160,7 @@ router.get('/getEC/:token', function (req, res, next) {
         params.append("TOKEN", token);
 
         // construct a request payload obj
-        var reqBody = {}; const entries = params.entries();
-        for (const entry of entries){
-            reqBody[entry[0]] = entry[1];
-        };
-
+        var reqBody = generateRequestBody(params.entries());
 
         console.log("Starting the fetch for GetExpressCheckoutDetails.");
         fetch(baseURL, {
@@ -289,10 +285,7 @@ function doEC(req, res, next) {
            */
 
         // construct a request payload obj
-        var reqBody = {}; const entries = params.entries();
-        for (const entry of entries){
-            reqBody[entry[0]] = entry[1];
-        };
+        var reqBody = generateRequestBody(params.entries());
 
         console.log("Starting the fetch for DoExpressCheckoutPayment.");
         fetch(baseURL, {
@@ -343,10 +336,7 @@ function doAuth(req, res, next) {
         params.append("CURRENCYCODE", cart.purchase_units[0].amount.currency_code);
 
         // construct a request payload obj
-        var reqBody = {}; const entries = params.entries();
-        for (const entry of entries){
-            reqBody[entry[0]] = entry[1];
-        };
+        var reqBody = generateRequestBody(params.entries());
 
         console.log("Starting the fetch for DoAuthorization.");
         fetch(baseURL, {
@@ -408,10 +398,7 @@ router.post('/doCapture', function doCapture(req, res, next) {
         // params.append("TERMINALID", "");
 
         // construct a request payload obj
-        var reqBody = {}; const entries = params.entries();
-        for (const entry of entries) {
-            reqBody[entry[0]] = entry[1];
-        };
+        var reqBody = generateRequestBody(params.entries());
 
         console.log("Starting the fetch for DoCapture.");
         fetch(baseURL, {
@@ -443,5 +430,19 @@ router.post('/doCapture', function doCapture(req, res, next) {
         res.status(500).send(JSON.stringify({ message: "We have a problem in the fetch: " + req.originalUrl, error: error }));
     }
 });
+
+function generateRequestBody(entries){
+    var reqBody = {};
+    for (const entry of entries){
+        if (entry[0] === 'USER' || entry[0] === 'PWD' || entry[0] === 'SIGNATURE') {
+            reqBody[entry[0]] = 'xxxxxxxxxxxx';
+        }
+        else {
+            reqBody[entry[0]] = entry[1];
+        }
+    };
+
+    return reqBody;
+}
 
 module.exports = router;
