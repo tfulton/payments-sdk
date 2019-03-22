@@ -49,7 +49,6 @@ router.get('/:orderId', function(req, res, next){
 
     try{
         const orderId = req.params.orderId;
-
         const url = `${baseURL}/v2/checkout/orders/${orderId}`;
         fetch(url, {
             method: 'GET',
