@@ -32,7 +32,7 @@
                 Integration
                 <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a class="item" href="/">Client / Orders v2</a>
+                    <a class="item" href="/">Client Orders v2</a>
                     <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
                 </div>
@@ -73,7 +73,6 @@
     
             <!-- ORDER REVIEW FORM -->
             <div class="ui form" id="authForm" hidden>
-                <input type="hidden" id="orderId" />
                 <button class="ui primary button" id="authorize">
                     Save+Authorize Order
                 </button>
@@ -137,7 +136,7 @@
             processing_instruction: "ORDER_SAVED_EXPLICITLY",
             application_context: {
                 brand_name: "Todd's Clothing Shop",
-                locale: "en-NL",
+                locale: "en-US",
                 landing_page: "BILLING",
                 shipping_preference: "SET_PROVIDED_ADDRESS",
                 return_url: "https://www.paypal.com/checkoutnow/error",
@@ -271,9 +270,6 @@
                         "<li>Click the button and we will 'Save' then 'Authorize' via our custom server backend.</li></ul>";
                     presentInfoMessage("Review", message);
                     presentPayload(info);
-
-                    // save the id for later
-                    $("#orderId").val(order.id);
 
                     // show or hide forms
                     $("#paymentForm").hide();
@@ -412,10 +408,6 @@
         $('.message .close')
             .on('click', function () {
                 $("#errorMessage").hide();
-                // $(this)
-                //     .closest('.message')
-                //     .transition('fade')
-                //     ;
             })
             ;
     </script>
