@@ -246,13 +246,14 @@
             },
             onError: function(error){
                 console.log("Error in callback: ", error);
-                presentError("We have an error in an SDK callback.", error.message);
+                presentError("We have an error in an SDK callback.", error);
             },
             onApprove: function (data, actions) {
 
-                // First, we call the Order Get from the server to retrieve the approved order
-                const orderId = data.orderID;
                 console.log("onApprove data: ", data);
+                const orderId = data.orderID;
+
+                // Get the transaction details
                 return fetch(`/v2/orders/${orderId}`, {
                     method: 'GET',
                     headers: {
@@ -262,7 +263,7 @@
                     return response.json();
                 }).then(info => {
                     const order = info.response;
-                    console.log("Order Data: ", order);
+                    console.log("Order GET: ", order);
 
                     // show a message and present the request/response data 
                     var message = "<ul class='list'><li>Customer approval completed</li>" +
@@ -335,6 +336,7 @@
                                 }).then(function (response) {
                                     return response.json();
                                 }).then(function (info) {
+                                    console.log("Auth Capture: ", info.response);
 
                                     // show the request/response data
                                     var message = "<ul class='list'><li>End.</li>" +
@@ -355,18 +357,21 @@
 
                                 }), function (error) {
                                     $("body").dimmer("hide");
-                                    console.log("ERROR in catch: ", e);
+                                    console.log("ERROR in capture: ", e);
+                                    throw e;
                                 }
                             })
 
                         }), function (e) {
                             $("body").dimmer("hide");
-                            console.log("ERROR in catch: ", e);
+                            console.log("ERROR in SAVE/AUTHORIZE: ", e);
+                            throw e;
                         }
                     });
 
                 }), function (error) {
-                    console.log("ERROR: ", error);
+                    console.log("ERROR in GET: ", error);
+                    throw error;
                 };
             }
         }).render('#paypal-button-container');
@@ -379,11 +384,15 @@
             return;
         }
 
-        function presentError(header, message) {
+        function presentError(header = 'General Error', error, debug = false) {
             $("#errorMessageHeader").html(header);
-            $("#errorMessageContent").html(message);
+            $("#errorMessageContent").html(error.message);
+            if (debug){
+                $("#errorStack").html(error.stack);
+            }
             $("#errorMessage").show();
         }
+
 
         function presentInfoMessage(header, message) {
             $("#infoMessage .header").html(header);
@@ -402,7 +411,7 @@
 
         $('.ui.dropdown')
             .dropdown(this)
-            console.log("Dropdown: ", JSON.stringify(this));
+            // console.log("Dropdown: ", JSON.stringify(this));
             ;
 
         $('.message .close')
