@@ -235,24 +235,23 @@
                     },
                     body: JSON.stringify(paymentData)
                 })
-                .then(res => res.json())
-                .then(json => {
-                    return json.TOKEN;
-                })
-                .catch( // I don't think this is really executed based on the client console.
-                    error => console.error('Error:', error)
-                );
+                    .then(res => res.json())
+                    .then(json => {
+                        return json.TOKEN;
+                    });
             },
             onError: function(error){
                 console.log("Error in callback: ", error);
-                presentError("We have an error in an SDK callback.", error.message);
+                presentError("We have an error in an SDK callback.", error);
             },
             onApprove: function (data, actions) {
+
+                console.log("onApprove data: ", data);
 
                 // The EC token comes back in an 'orderID' named field.
                 const orderId = data.orderID;
                 const payerId = data.payerID;
-                console.log("onApprove data: ", data);
+                
                 return fetch(`/nvp/getEC/${orderId}`, {
                     method: 'GET',
                     headers: {
@@ -264,7 +263,7 @@
                 })
                 .then(info => {
                     const getEcResp = info.response;
-                    console.log("getEcResp Data: ", getEcResp);
+                    console.log("GETEC Data: ", getEcResp);
 
                     // show a message and present the request/response data 
                     var message = "<ul class='list'><li>Customer approval completed</li>" +
@@ -288,12 +287,11 @@
 
                     // handle the authorization click
                     $("#authorize").click(function () {
-                        console.log("Authorizing the order: ", orderId);
+                        console.log("Calling DoAuth: ", orderId);
 
                         // show the dimmer / loader
-                        $("#mainSection").dimmer("show");
+                        $("body").dimmer("show");
 
-                        body: JSON.stringify(paymentData)
                         fetch(`/nvp/doCombined`, {
                             method: 'POST',
                             headers: {
@@ -308,8 +306,7 @@
                             return response.json();
                         }).then(function (info) {
                             const auth = info.response;
-                            console.log("Authorization data: ", auth);
-                            $("#transactionId").val(auth.TRANSACTIONID);
+                            console.log("DOAUTH data: ", auth);
 
                             // show the request/response data
                             // show a message and present the request/response data 
@@ -327,13 +324,13 @@
                             $("#stepTwo").addClass("disabled").removeClass("active");
                             $("#stepThree").addClass("active").removeClass("disabled");
 
-                            $("#mainSection").dimmer("hide");
+                            $("body").dimmer("hide");
 
                             $("#capture").click(function () {
                                 console.log("Capturing the auth: ", auth.TRANSACTIONID);
 
                                 // show the dimmer / loader
-                                $("#mainSection").dimmer("show");
+                                $("body").dimmer("show");
 
                                 fetch(`/nvp/doCapture`, {
                                     method: 'POST',
@@ -345,9 +342,9 @@
                                         return JSON.stringify(paymentData);
                                     })()
                                 }).then(function (response) {
-                                    console.log("doCapture RESPONSE: ", response);
                                     return response.json();
                                 }).then(function (info) {
+                                    console.log("Auth Capture: ", info.response);
 
                                     // show the request/response data
                                     // show a message and present the request/response data 
@@ -364,22 +361,25 @@
                                     $("#stepThree").addClass("disabled").removeClass("active");
                                     $("#stepFour").addClass("active").removeClass("disabled");
 
-                                    $("#mainSection").dimmer("hide");
+                                    $("body").dimmer("hide");
 
                                 }), function (error) {
-                                    $("#mainSection").dimmer("hide");
-                                    console.log("ERROR in catch: ", e);
+                                    $("body").dimmer("hide");
+                                    console.log("ERROR in capture: ", e);
+                                    throw e;
                                 }
                             })
 
                         }), function (e) {
-                            $("#mainSection").dimmer("hide");
-                            console.log("ERROR in catch: ", e);
+                            $("body").dimmer("hide");
+                            console.log("ERROR in AUTHORIZE: ", e);
+                            throw e;
                         }
                     });
 
                 }), function (error) {
-                    console.log("ERROR: ", error);
+                    console.log("ERROR in GET: ", error);
+                    throw error;
                 };
             }
         }).render('#paypal-button-container');
@@ -392,11 +392,15 @@
             return;
         }
 
-        function presentError(header, message) {
+        function presentError(header = 'General Error', error, debug = false) {
             $("#errorMessageHeader").html(header);
-            $("#errorMessageContent").html(message);
+            $("#errorMessageContent").html(error.message);
+            if (debug){
+                $("#errorStack").html(error.stack);
+            }
             $("#errorMessage").show();
         }
+
 
         function presentInfoMessage(header, message) {
             $("#infoMessage .header").html(header);
