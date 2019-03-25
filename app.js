@@ -39,6 +39,9 @@ app.use('/v2/orders', ordersV2);
 var paymentsV2 = require('./routes/payments_v2');
 app.use('/v2/payments', paymentsV2);
 
+var paymentsV2 = require('./routes/beam');
+app.use('/beam', paymentsV2);
+
 var nvp = require('./routes/nvp');
 app.use('/nvp', nvp);
 

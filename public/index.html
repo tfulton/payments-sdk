@@ -35,6 +35,7 @@
                     <a class="item" href="/">Client Orders v2</a>
                     <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
+                    <a class="item" href="/ba">Server Billing Agreements</a>
                 </div>
             </div>
         </div>
@@ -336,7 +337,8 @@
 
                                 }), function (error) {
                                     $("body").dimmer("hide");
-                                    console.log("ERROR in catch: ", e);
+                                    console.log("ERROR in capture: ", e);
+                                    throw e;
                                 }
                             });
 
