@@ -12,7 +12,7 @@
 
     <!-- Payment SDK -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&currency=USD&intent=order"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&commit=false&vault=true"></script>
     <style>
         pre {
             font-size: 80%;
@@ -21,7 +21,7 @@
 </head>
 
 <body>
-
+        
     <!-- BEGIN: HEADER -->
     <div class="ui top attached menu">
         <div class="ui container">
@@ -33,18 +33,20 @@
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     <a class="item" href="/">Client Orders v2</a>
-                    <a class="item" href="/v2">Server Orders v2 (AS2)</a>
-                    <a class="item active selected" href="/nvp">Server NVP (AS2)</a>
+                    <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
+                    <a class="item" href="/nvp">Server NVP (AS2)</a>
                     <a class="item" href="/ba">Server Billing Agreements</a>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- END: HEADER -->
+    
     <!-- BEGIN: MAIN CONTENT -->
     <div class="ui container" id="mainSection">
         <p></p>
-        <h3 class="header">Server NVP (AS2)</h3>
+        <h3 class="header">Server Billing Agreements</h3>
         <div class="ui top attached tabular menu">
             <a class="item active" data-tab="first" id="stepOne">Begin</a>
             <a class="item" data-tab="second" id="stepTwo">Review</a>
@@ -72,9 +74,8 @@
     
             <!-- ORDER REVIEW FORM -->
             <div class="ui form" id="authForm" hidden>
-                <input type="hidden" id="orderId" />
                 <button class="ui primary button" id="authorize">
-                    DoEC and DoAuth
+                    Create Order
                 </button>
                 <button class="ui button" id="cancel">
                     Discard
@@ -85,7 +86,7 @@
             <div class="ui form" id="captureForm" hidden>
                 <input type="hidden" id="authId" />
                 <button class="ui primary button" id="capture">
-                    DoCapture
+                    Capture Order
                 </button>
                 <button class="ui button" id="cancel">
                     Discard
@@ -128,14 +129,42 @@
     
     </div>
     <!-- END: MAIN CONTENT -->
-
+    
     <script>
 
-        const paymentData = {
-            intent: "AUTHORIZE",
+        const billingData = {
+                description: 'Billing Agreement',
+                shipping_address:
+                {
+                    line1: '1350 North First Street',
+                    city: 'San Jose',
+                    state: 'CA',
+                    postal_code: '95112',
+                    country_code: 'US',
+                    recipient_name: 'Todd Fulton'
+                },
+                payer: { payment_method: 'PAYPAL' },
+                plan:
+                {
+                    type: 'MERCHANT_INITIATED_BILLING_SINGLE_AGREEMENT',
+                    merchant_preferences:
+                    {
+                        return_url: 'https://www.paypal.com/checkoutnow/error',
+                        cancel_url: 'https://www.paypal.com/checkoutnow/error',
+                        notify_url: 'https://www.paypal.com/checkoutnow/error',
+                        accepted_pymt_type: 'INSTANT',
+                        skip_shipping_address: false,
+                        immutable_shipping_address: true
+                    }
+                }
+            }
+
+        const paymentData= {
+            intent: "CAPTURE",
+            // processing_instruction: "ORDER_SAVED_EXPLICITLY",  THIS IS REQUIRED FOR ORDERS ONLY!!!!
             application_context: {
                 brand_name: "Todd's Clothing Shop",
-                locale: "en-NL",
+                locale: "en-US",
                 landing_page: "BILLING",
                 shipping_preference: "SET_PROVIDED_ADDRESS",
                 return_url: "https://www.paypal.com/checkoutnow/error",
@@ -150,15 +179,15 @@
                     invoice_id: "MAR01_001_INVOICEID",
                     amount: {
                         currency_code: "USD",
-                        value: 8.00,
+                        value: 15.00,
                         breakdown: {
                             item_total: {
                                 currency_code: "USD",
-                                value: 6.00
+                                value: 12.00
                             },
                             tax_total: {
                                 currency_code: "USD",
-                                value: 1.00
+                                value: 2.00
                             },
                             shipping: {
                                 currency_code: "USD",
@@ -191,17 +220,17 @@
                                 currency_code: "USD",
                                 value: 1.00
                             },
-                            quantity: 1,
+                            quantity: 2,
                             category: "PHYSICAL_GOODS"
                         }
                     ],
                     shipping: {
                         method: "United States Postal Service",
                         address: {
-                            name: {
-                                given_name: "Sarah",
-                                surname: "Serverton"
-                            },
+                            // name: {
+                            //     given_name: "Sarah",
+                            //     surname: "Serverton"
+                            // },
                             address_line_1: "123 Townsend St",
                             address_line_2: "Floor 4",
                             admin_area_2: "San Francisco",
@@ -215,30 +244,32 @@
         }
 
         // set the info message
-        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a request to our custom server-side where we call <strong>SetEC</strong>.")
+        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a request to our custom server-side where we create a new order via Orders v2.")
 
         // set the request/response info
-        $("#requestURL").html("<strong>POST </strong>https://api-3t.sandbox.paypal.com/nvp");
-        $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+        $("#requestURL").html("<strong>POST </strong>https://api.sandbox.paypal.com/v2/checkout/orders");
+        $("#requestPayload").html("<pre>" + JSON.stringify(billingData, null, 1) + "</pre>");
 
         paypal.Buttons({
             style: {
                 height: 25
             },
 
-            createOrder: function (data, actions) {
-
-                // CLIENT SIDE ORDER CREATE
-                return fetch('/nvp/setEC', {
+            // RETURN THE EC-TOKEN, ORDER-ID OR BA-ID IN ORDER TO RENDER HERMES POP-UP
+            createBillingAgreement: function () {
+                // SERVER SIDE ORDER CREATE
+                return fetch('/beam/createBAToken', {
                     method: 'POST',
+                    body: '{}',
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(paymentData)
+                    body: JSON.stringify(billingData)
                 })
-                    .then(res => res.json())
+                    .then(response => response.json())
                     .then(json => {
-                        return json.TOKEN;
+                        console.log("CreateBAToken: ", json);
+                        return json.response.token_id;
                     });
             },
             onError: function(error){
@@ -248,72 +279,60 @@
             onApprove: function (data, actions) {
 
                 console.log("onApprove data: ", data);
-
-                // The EC token comes back in an 'orderID' named field.
+                const billingToken = data.billingToken;
                 const orderId = data.orderID;
-                const payerId = data.payerID;
-                
-                return fetch(`/nvp/getEC/${orderId}`, {
-                    method: 'GET',
+
+                // show or hide forms
+                $("#paymentForm").hide();
+                $("#authForm").show();
+
+                // We go straight into creating a billing agreement once the buyer approves.
+                return fetch(`/beam/createBA/${billingToken}`, {
+                    method: 'POST',
                     headers: {
                         "Content-Type": "application/json"
                     }
-                })
-                .then(response => {
-                    return response.json()
-                })
-                .then(info => {
-                    const getEcResp = info.response;
-                    console.log("GETEC Data: ", getEcResp);
+                }).then(response => {
+                    return response.json();
+                }).then(info => {
+                    const billingAgreement = info.response;
+                    console.log("BA Create: ", billingAgreement);
 
                     // show a message and present the request/response data 
-                    var message = "<ul class='list'><li>Customer approval completed</li>" +
-                        "<li>GetEC details were retrieved and are viewable below.</li>" +
-                        "<li>Click the button and we will call DoEC and DoAuth via our server backend.</li></ul>";
+                    var message = "<ul class='list'><li>Customer Billing Agreement approval completed</li>" +
+                        "<li>The billing agreement was created and details are available below.</li>" +
+                        "<li>Click the button and create a new order using the new billing agreement.</li></ul>";
                     presentInfoMessage("Review", message);
                     presentPayload(info);
 
-                    // // show the order data and store hidden input fields
-                    // // $("#orderData").append("<pre>" + JSON.stringify(getEcResp, null, 2) + "</pre>");
-                    // $("#token").val(orderId);
-                    // $("#payerId").val(payerId);
-
-                    // show or hide forms
-                    $("#paymentForm").hide();
-                    $("#authForm").show();
-
                     // update the "steps"
-                    $("#stepOne").addClass("disabled").removeClass("active");
-                    $("#stepTwo").addClass("active").removeClass("disabled");
+                    $("#stepOne").removeClass("active");
+                    $("#stepTwo").addClass("active");
 
                     // handle the authorization click
                     $("#authorize").click(function () {
-                        console.log("Calling DoAuth: ", orderId);
+                        console.log("Create order with: ", paymentData);
 
                         // show the dimmer / loader
                         $("body").dimmer("show");
 
-                        fetch(`/nvp/doCombined`, {
+                        fetch(`/v2/orders/`, {
                             method: 'POST',
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: (function () {
-                                paymentData.token = orderId;
-                                paymentData.payerId = payerId;
-                                return JSON.stringify(paymentData);
-                            })()
+                            body: JSON.stringify(paymentData)
                         }).then(function (response) {
                             return response.json();
                         }).then(function (info) {
-                            const auth = info.response;
-                            console.log("DOAUTH data: ", auth);
+                            const order = info.response;
+                            console.log("Order CREATE data: ", order);
 
                             // show the request/response data
                             // show a message and present the request/response data 
-                            var message = "<ul class='list'><li>DoEC and DoAuth successful.</li>" +
-                                "<li>The response details returned in the DoAuth are below.</li>" +
-                                "<li>Click the button and we will 'Capture' the authorization using a server side call to DoCapture.</li></ul>";
+                            var message = "<ul class='list'><li>Order create successful.</li>" +
+                                "<li>The response details for the new order are below.</li>" +
+                                "<li>Click the button and we will 'Capture' the order via REST.</li></ul>";
                             presentInfoMessage("Capture", message);
                             presentPayload(info);
 
@@ -322,35 +341,42 @@
                             $("#captureForm").show();
 
                             // update the "steps"
-                            $("#stepTwo").addClass("disabled").removeClass("active");
-                            $("#stepThree").addClass("active").removeClass("disabled");
+                            $("#stepTwo").removeClass("active");
+                            $("#stepThree").addClass("active");
 
                             $("body").dimmer("hide");
 
                             $("#capture").click(function () {
-                                console.log("Capturing the auth: ", auth.TRANSACTIONID);
+
+                                var capturePayload = {
+                                        payment_source: {
+                                            token: {
+                                                id: billingAgreement.id,
+                                                type: "BILLING_AGREEMENT"
+                                            }
+                                        }
+                                    }
+                                console.log("Capturing the order id: ", order.id);
+                                console.log("Capturing the order with: ", capturePayload);
 
                                 // show the dimmer / loader
                                 $("body").dimmer("show");
 
-                                fetch(`/nvp/doCapture`, {
+                                fetch(`/v2/orders/${order.id}/capture`, {
                                     method: 'POST',
                                     headers: {
                                         "Content-Type": "application/json"
                                     },
-                                    body: (function () {
-                                        paymentData.transactionId = auth.TRANSACTIONID;
-                                        return JSON.stringify(paymentData);
-                                    })()
+                                    body: JSON.stringify(capturePayload)
                                 }).then(function (response) {
                                     return response.json();
                                 }).then(function (info) {
-                                    console.log("Auth Capture: ", info.response);
+                                    console.log("Order Capture: ", info.response);
 
                                     // show the request/response data
-                                    // show a message and present the request/response data 
-                                    var message = "<ul class='list'><li>DoCapture successful.</li>" +
-                                        "<li>The response details returned in the DoCapture are below.</li></ul>";
+                                    var message = "<ul class='list'><li>End.</li>" +
+                                        "<li>We sucessfully captured the order.</li>" +
+                                        "<li>Capture response details are viewable below.</li></ul>";
                                     presentInfoMessage("Capture", message);
                                     presentPayload(info);
 
@@ -359,8 +385,8 @@
                                     $("#finalForm").show();
 
                                     // update the "steps"
-                                    $("#stepThree").addClass("disabled").removeClass("active");
-                                    $("#stepFour").addClass("active").removeClass("disabled");
+                                    $("#stepThree").removeClass("active");
+                                    $("#stepFour").addClass("active");
 
                                     $("body").dimmer("hide");
 
@@ -373,7 +399,7 @@
 
                         }), function (e) {
                             $("body").dimmer("hide");
-                            console.log("ERROR in AUTHORIZE: ", e);
+                            console.log("ERROR in SAVE/AUTHORIZE: ", e);
                             throw e;
                         }
                     });
@@ -410,29 +436,25 @@
 
     </script>
     <script>
-            $("#home, #cancel, #cancel2, #cancel3").click(function () {
-                /* function goes in here */
-                location.reload()
-            });
-            $('.ui.accordion')
-                .accordion()
-                ;
-    
-            $('.ui.dropdown')
-                .dropdown(this)
-                console.log("Dropdown: ", this);
-                ;
-    
-            $('.message .close')
-                .on('click', function () {
-                    $("#errorMessage").hide();
-                    // $(this)
-                    //     .closest('.message')
-                    //     .transition('fade')
-                    //     ;
-                })
-                ;
-        </script>
+        $("#home, #cancel, #cancel2, #cancel3").click(function () {
+            /* function goes in here */
+            location.reload()
+        });
+        $('.ui.accordion')
+            .accordion()
+            ;
+
+        $('.ui.dropdown')
+            .dropdown(this)
+            // console.log("Dropdown: ", JSON.stringify(this));
+            ;
+
+        $('.message .close')
+            .on('click', function () {
+                $("#errorMessage").hide();
+            })
+            ;
+    </script>
 </body>
 
 </html>

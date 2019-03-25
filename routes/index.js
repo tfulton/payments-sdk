@@ -14,5 +14,9 @@ router.get('/nvp', function (req, res, next) {
   res.redirect(302, './index_nvp.html');
 });
 
+router.get('/ba', function (req, res, next) {
+  res.redirect(302, './index_ba.html');
+});
+
 
 module.exports = router;

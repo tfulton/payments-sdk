@@ -35,6 +35,7 @@
                     <a class="item" href="/">Client Orders v2</a>
                     <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
+                    <a class="item" href="/ba">Server Billing Agreements</a>
                 </div>
             </div>
         </div>
@@ -241,7 +242,7 @@
                 })
                     .then(response => response.json())
                     .then(json => {
-                        return json.id; // returns the order id here
+                        return json.response.id; // returns the order id here
                     });
             },
             onError: function(error){

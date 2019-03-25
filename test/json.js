@@ -82,4 +82,14 @@ const paymentData = {
     ]
 }
 
-console.log(JSON.stringify(paymentData, null, 0));
+const data = {
+    payment_source: {
+        token: {
+            id: "B-756772329J424245H",
+            type: "BILLING_AGREEMENT"
+        }
+    }
+}
+
+// console.log(JSON.st ringify(paymentData, null, 0));
+console.log(JSON.stringify(data, null, 0));

@@ -19,21 +19,22 @@ router.use(buildAccessHeader);
 // CREATE an order
 router.post('/', function (req, res, next) {
 
-    // res.status(500).send(JSON.stringify(new Error("Test Error")));
     try {
         console.log("BODY: ", req.body);
-        var cart = req.body;
+        var body = req.body;
 
-        fetch(`${baseURL}/v2/checkout/orders`, {
+        const url = `${baseURL}/v2/checkout/orders`;
+        fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
-            body: JSON.stringify(cart)
+            body: JSON.stringify(body)
         }).then(function (response) {
-            // console.log("Fetch response raw: ", response);
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            res.status(201).send(json);
+            const responseInfo = new ResponseInfo('POST', url, body, json);
+            console.log("ResponseInfo: ", responseInfo);
+            res.status(201).send(JSON.stringify(responseInfo));
         }).catch(function (error) {
             res.status(400).send(JSON.stringify(new Error('Message rejected by endpoint.', error)));
         });
@@ -72,6 +73,7 @@ router.get('/:orderId', function(req, res, next){
 
 // SAVE an order
 function doSave(req, res, next){
+
     try {
         const orderId = req.params.orderId;
         const url = `${baseURL}/v2/checkout/orders/${orderId}/save`;
@@ -139,19 +141,25 @@ router.post('/:orderId/doCombined', doCombined, function(req, res, next){
 router.post('/:orderId/capture', function(req, res, next){
     try {
         const orderId = req.params.orderId;
+        console.log("OrderID for capture:  ", orderId);
+        
+        var body = req.body;
+        console.log("BODY: ", req.body);
+        
         const url = `${baseURL}/v2/checkout/orders/${orderId}/capture`; 
+        console.log('URL: ', url);
         fetch(url, {
             method: 'POST',
             headers: req.ppHeader,
-            body: '{}'
+            body: JSON.stringify(body)
         }).then(function (response) {
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
             const responseInfo = new ResponseInfo('POST', url, 'N/A', json);
-            res.status(201).send(responseInfo);
+            res.status(201).send(JSON.stringify(responseInfo));
         }).catch(function (error) {
-            res.status(400).send(JSON.stringify(error));    
+            res.status(400).send(JSON.stringify(new Error('Message rejected by endpoint.', error)));
         });
     }
     catch (error) {
