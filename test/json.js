@@ -91,5 +91,24 @@ const data = {
     }
 }
 
+const data2 = [
+    {
+        op: 'replace',
+        path: '/transactions/0/amount',
+        value: {
+            total: 20.00,
+            currency: 'USD',
+            details: {
+                subtotal: '18.00',
+                tax: '0.00',
+                shipping: 0.00,
+                handling_fee: '2.00',
+                shipping_discount: '0.00',
+                insurance: '0.00'
+            }
+        }
+    }
+]
+
 // console.log(JSON.st ringify(paymentData, null, 0));
-console.log(JSON.stringify(data, null, 0));
+console.log(JSON.stringify(data2, null, 0));
