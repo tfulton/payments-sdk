@@ -32,6 +32,8 @@ router.post('/setEC', function (req, res, next) {
         params.append("MAXAMT", "100.00");
         params.append("RETURNURL", "https://www.paypal.com/checkoutnow/error");
         params.append("CANCELURL", "https://www.paypal.com/checkoutnow/error");
+        // params.append("RETURNURL", "https://www.todd.com/checkoutnow/error");
+        // params.append("CANCELURL", "https://www.tldd.com/checkoutnow/error");
         // params.append("CALLBACK", "");
         // params.append("CALLBACKTIMEOUT", "6");
         // params.append("CALLBACKVERSION", "");
