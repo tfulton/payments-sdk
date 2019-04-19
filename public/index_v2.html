@@ -33,6 +33,7 @@
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     <a class="item" href="/">Client Orders v2</a>
+                    <a class="item" href="/v1">Server Payments v1 (AS2)</a>
                     <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
                     <a class="item" href="/ba">Server Billing Agreements</a>
@@ -234,7 +235,6 @@
                 // SERVER SIDE ORDER CREATE
                 return fetch('/v2/orders', {
                     method: 'POST',
-                    body: '{}',
                     headers: {
                         "Content-Type": "application/json"
                     },

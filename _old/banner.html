@@ -1,0 +1,27 @@
+
+<html>
+<head>
+  <script src="https://www.paypalobjects.com/upstream/bizcomponents/js/messaging.js"></script>
+</head>
+
+<body>
+
+
+<div class="pp-message"></div>
+
+<script>
+        paypal.Message.render({
+               account: 'WX74857PVJ448',
+               amount: 100.00,
+               style: {                             
+                       layout: 'text',
+                       logo: {
+                               type: 'primary',
+                               position: 'left'
+                       }
+               }
+        },
+        '.pp-message');
+</script>
+</body>
+</html>

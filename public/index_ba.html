@@ -33,9 +33,10 @@
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     <a class="item" href="/">Client Orders v2</a>
-                    <a class="item active selected" href="/v2">Server Orders v2 (AS2)</a>
+                    <a class="item" href="/v1">Server Payments v1 (AS2)</a>
+                    <a class="item" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
-                    <a class="item" href="/ba">Server Billing Agreements</a>
+                    <a class="item active selected" href="/ba">Server Billing Agreements</a>
                 </div>
             </div>
         </div>
@@ -255,12 +256,11 @@
                 height: 25
             },
 
-            // RETURN THE EC-TOKEN, ORDER-ID OR BA-ID IN ORDER TO RENDER HERMES POP-UP
+            // STEP #1:  CREATE THE BILLING AGREEMENT AND GET CUSTOMER APPROVAL
             createBillingAgreement: function () {
                 // SERVER SIDE ORDER CREATE
                 return fetch('/beam/createBAToken', {
                     method: 'POST',
-                    body: '{}',
                     headers: {
                         "Content-Type": "application/json"
                     },
@@ -286,7 +286,7 @@
                 $("#paymentForm").hide();
                 $("#authForm").show();
 
-                // We go straight into creating a billing agreement once the buyer approves.
+                // STEP #2:  CREATE THE BILLING AGREEMENT USING THE APPROVED BA TOKEN FROM ABOVE
                 return fetch(`/beam/createBA/${billingToken}`, {
                     method: 'POST',
                     headers: {
@@ -301,7 +301,7 @@
                     // show a message and present the request/response data 
                     var message = "<ul class='list'><li>Customer Billing Agreement approval completed</li>" +
                         "<li>The billing agreement was created and details are available below.</li>" +
-                        "<li>Click the button and create a new order using the new billing agreement.</li></ul>";
+                        "<li>Click the button and create a new order and afterwards capture using the new billing agreement.</li></ul>";
                     presentInfoMessage("Review", message);
                     presentPayload(info);
 
@@ -309,7 +309,7 @@
                     $("#stepOne").removeClass("active");
                     $("#stepTwo").addClass("active");
 
-                    // handle the authorization click
+                    // STEP #3:  WE CREATE A V2 ORDER -- WHICH WE WILL CAPTURE USING THE BILLING AGREEMENT
                     $("#authorize").click(function () {
                         console.log("Create order with: ", paymentData);
 
@@ -332,7 +332,7 @@
                             // show a message and present the request/response data 
                             var message = "<ul class='list'><li>Order create successful.</li>" +
                                 "<li>The response details for the new order are below.</li>" +
-                                "<li>Click the button and we will 'Capture' the order via REST.</li></ul>";
+                                "<li>Click the button and we will 'Capture' the order via REST using the billing agreement we created prior.</li></ul>";
                             presentInfoMessage("Capture", message);
                             presentPayload(info);
 
@@ -346,6 +346,7 @@
 
                             $("body").dimmer("hide");
 
+                            // STEP #4:  CAPTURE THAT ORDER, BECAUSE WE HAVE A VALID BILLING AGREEMENT WITH WHICH TO DO IT
                             $("#capture").click(function () {
 
                                 var capturePayload = {

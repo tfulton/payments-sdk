@@ -156,7 +156,7 @@ router.post('/:orderId/capture', function(req, res, next){
             return response.json();
         }).then(function (json) {
             console.log("Fetch json: ", json);
-            const responseInfo = new ResponseInfo('POST', url, 'N/A', json);
+            const responseInfo = new ResponseInfo('POST', url, body, json);
             res.status(201).send(JSON.stringify(responseInfo));
         }).catch(function (error) {
             res.status(400).send(JSON.stringify(new Error('Message rejected by endpoint.', error)));
