@@ -13,12 +13,18 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
     ```
     npm install
     ```
+2. Update the PP JavaScript SDK querystring with your clientId.  Here:
+   * Client Orders [here](./public/index.html#L15
+   * Payments v1 [here](./public/index_v1.html#L15
+   * Orders v2 [here](./public/index_v2.html#L15
+   * NVP [here](./public/index_nvp.html#L15
+   * BEAM [here](./public/index_ba.html#L15)
 
-2. Customize your API credentials in the [./config/default.example.json](./config/default.example.json) configuration file.  Specfically:
+3. Customize your API credentials in the [./config/default.example.json](./config/default.example.json) configuration file.  Specfically:
    * Add your specific credentials for NVP, REST or what-have-you.
    * RENAME the file to "default.json" within the existing directory (this file will be ignored by GIT should you choose to push the contents out into the public!)
 
-3. Start the server:
+4. Start the server:
     ```
     npm start
     ```
