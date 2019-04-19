@@ -6,6 +6,10 @@ router.get('/', function (req, res, next) {
   res.redirect(302, '/index.html');
 });
 
+router.get('/v1', function (req, res, next) {
+  res.redirect(302, './index_v1.html');
+});
+
 router.get('/v2', function (req, res, next) {
   res.redirect(302, './index_v2.html');
 });
