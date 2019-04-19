@@ -13,7 +13,7 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
     ```
     npm install
     ```
-2. Update the PP JavaScript SDK querystring with your clientId.  Here:
+2. Update the PP JavaScript SDK querystring with your clientId.  In the following:
    * Client Orders [here](./public/index.html#L15)
    * Payments v1 [here](./public/index_v1.html#L15)
    * Orders v2 [here](./public/index_v2.html#L15)
