@@ -1,6 +1,12 @@
 # payments-sdk
 
-Project which highlights PayPal JavaScript implementations using various PayPal backends.
+Project which highlights PayPal JavaScript implementations using various PayPal backend integration methods.  Integration methods include:
+
+* Default client side orders v2
+* Server side Payments v1
+* Server side Orders v2
+* Server side NVP
+* Server side BEAM + Orders v2
 
 ## Setup Instructions
 1. Install packages:
