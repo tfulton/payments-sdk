@@ -32,7 +32,7 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
     By default, this runs the app on port `3000`. You can configure the port by setting the environmental variable `PORT`.
 
 NOTES:
-* Currently only the Payments V1 backend has been hooked up.  Stay tuned.
+* Needs testing!!!
 
 ## Heroku Preparation
 Please see the Heroku instructions in a related repo [here](https://github.paypal.com/NA-LE/paypal-jsv4-venmo#heroku-preparation)
