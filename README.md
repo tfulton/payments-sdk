@@ -24,12 +24,7 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
    * Add your specific credentials for NVP, REST or what-have-you.
    * RENAME the file to "default.json" within the existing directory (this file will be ignored by GIT should you choose to push the contents out into the public!)
 
-4. Add your clientId to the SDK script include (near the top of the index*.html files in [./public](./public) in as in the following.  Specifically, replace the "[YOUR CLIENT ID GOES HERE]":
-   ```html
-    <script src="https://www.paypal.com/sdk/js?client-id=[YOUR CLIENT ID GOES HERE]&commit=false&currency=USD&intent=authorize"></script>
-   ```
-
-5. Start the server:
+4. Start the server:
     ```
     npm start
     ```
