@@ -11,8 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
     <!-- Payment SDK -->
-    <script
-        src="https://www.paypal.com/sdk/js?client-id=[YOUR CLIENT ID GOES HERE]&commit=false&currency=USD&intent=authorize"></script>
+    <!-- <script
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&disable-funding=credit,card&commit=false&currency=USD&intent=authorize"></script> -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb"></script>
     <style>
         pre {
             font-size: 80%;
@@ -21,7 +22,7 @@
 </head>
 
 <body>
-        
+
     <!-- BEGIN: HEADER -->
     <div class="ui top attached menu">
         <div class="ui container">
@@ -41,9 +42,9 @@
             </div>
         </div>
     </div>
-    
+
     <!-- END: HEADER -->
-    
+
     <!-- BEGIN: MAIN CONTENT -->
     <div class="ui container" id="mainSection">
         <p></p>
@@ -54,26 +55,26 @@
             <a class="item" data-tab="third" id="stepThree">Capture</a>
             <a class="item" data-tab="third" id="stepFour">End</a>
         </div>
-    
+
         <div class="ui bottom attached tab segment active">
-    
+
             <div class="ui negative message hidden" id="errorMessage">
                 <i class="close icon"></i>
                 <div class="header" id="errorMessageHeader"></div>
                 <p id="errorMessageContent"></p>
                 <p id="errorStack"></p>
             </div>
-    
+
             <div class="ui message" id="infoMessage">
                 <div class="header"></div>
                 <p></p>
             </div>
-    
+
             <!-- PAYMENT FORM -->
             <div class="ui container" id="paymentForm">
                 <div id="paypal-button-container"></div>
             </div>
-    
+
             <!-- ORDER REVIEW FORM -->
             <div class="ui form" id="authForm" hidden>
                 <input type="hidden" id="orderId" />
@@ -84,7 +85,7 @@
                     Discard
                 </button>
             </div>
-    
+
             <!-- AUTH REVIEW FORM -->
             <div class="ui form" id="captureForm" hidden>
                 <input type="hidden" id="authId" />
@@ -95,14 +96,14 @@
                     Discard
                 </button>
             </div>
-    
+
             <!-- CAPTURE REVIEW FORM -->
             <div class="ui form" id="finalForm" hidden>
                 <button class="ui primary button" id="cancel">
                     Do it Again
                 </button>
             </div>
-    
+
             <!-- REQUEST/RESPONSE INFO HERE -->
             <div class="ui divider"></div>
             <div class="ui styled fluid accordion">
@@ -129,7 +130,7 @@
                 </div>
             </div>
         </div>
-    
+
     </div>
     <!-- END: MAIN CONTENT -->
 
@@ -223,144 +224,162 @@
             ]
         }
 
-    // set the info message
-    presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a client-side request to create a new order via Orders v2.")
+        // set the info message
+        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a client-side request to create a new order via Orders v2.")
 
-    // set the request/response info
-    $("#requestURL").html("N/A - uses built in client-side order client.");
-    $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
-
+        // set the request/response info
+        $("#requestURL").html("N/A - uses built in client-side order client.");
+        $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
 
         paypal.Buttons({
-            style: {
-                height: 25
-            },
-
-            createOrder: function (data, actions) {
-
-                return actions.order.create(
-                    paymentData
-                );
-            },
-            onError: function(error){
-                console.log("Error in callback: ", error);
-                presentError("We have an error in an SDK callback.", error);
-            },
-            onApprove: function (data, actions) {
-
-                console.log("onApprove data: ", data);
-                const orderId = data.orderID;
-
-                // Get the transaction details
-                return actions.order.get().then(function (order) {
-
-                    // Optionally display the transaction details to the buyer
-                    console.log("Order GET: ", order);
-
-                    // show a message and present the request/response data 
-                    var message = "<ul class='list'><li>Customer approval completed</li>" +
-                        "<li>The order details were retrieved via client 'actions.order.get()' and are viewable below.</li>" +
-                        "<li>Click the button and we will 'Capture' via our built-in order client.</li></ul>";
-                    presentInfoMessage("Review", message);
-                    presentPayload(new ResponseInfo("GET", "N/A - uses built-in client", data, order));
-
-                    // show or hide forms
-                    $("#paymentForm").hide();
-                    $("#authForm").show();
-
-                    // update the "steps"
-                    $("#stepOne").removeClass("active");
-                    $("#stepTwo").addClass("active");
-
-                    // handle the authorization click
-                    $("#authorize").click(function () {
-                        console.log("Authorizing the order: ", orderId);
-
-                        // show the dimmer / loader
-                        $("body").dimmer("show");
-
-                        actions.order.authorize().then(function (orderAuth) {
-                            console.log("Order/Auth: ", orderAuth);
-
-                            const auth = orderAuth.purchase_units[0].payments.authorizations[0]
-                            var authId = auth.id;
-
-                            // show the request/response data
-                            // show a message and present the request/response data 
-                            var message = "<ul class='list'><li>Auth successful.</li>" +
-                                "<li>The response details returned in the order authorization are below.</li>" +
-                                "<li>Click the button and we will 'Capture' the authorization using a server side call to Payments V2 REST.</li></ul>";
-                            presentInfoMessage("Capture", message);
-                            presentPayload(new ResponseInfo("POST", "N/A - uses built-in client.", order, orderAuth));
-
-                            // show or hide forms 
-                            $("#authForm").hide();
-                            $("#captureForm").show();
-
-                            // update the "steps"
-                            $("#stepTwo").removeClass("active");
-                            $("#stepThree").addClass("active");
-
-                            $("body").dimmer("hide");
-
-                            $("#capture").click(function () {
-                                console.log("Capturing the auth: ", authId);
-
-                                // show the dimmer / loader
-                                $("body").dimmer("show");
-
-                                fetch(`/v2/payments/authorizations/${auth.id}/capture`, {
-                                    method: 'POST',
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    }
-                                }).then(function (response) {
-                                    return response.json();
-                                }).then(function (info) {
-                                    console.log("Auth Capture: ", info.response);
-
-                                    // show the request/response data
-                                    var message = "<ul class='list'><li>End.</li>" +
-                                        "<li>We sucessfully captured the auth.</li>" +
-                                        "<li>Capture response details are viewable below.</li></ul>";
-                                    presentInfoMessage("Capture", message);
-                                    presentPayload(info);
-
-                                    // show or hide forms 
-                                    $("#captureForm").hide();
-                                    $("#finalForm").show();
-
-                                    // update the "steps"
-                                    $("#stepThree").removeClass("active");
-                                    $("#stepFour").addClass("active");
-
-                                    $("body").dimmer("hide");
-
-                                }), function (error) {
-                                    $("body").dimmer("hide");
-                                    console.log("ERROR in capture: ", e);
-                                    throw e;
-                                }
-                            });
-
-                        }).catch(function (e) {
-                            console.log("ERROR in AUTHORIZE: ", e);
-                            throw e;
-
-                        }).finally(function () {
-
-                            $("body").dimmer("hide");
-                        })
+                createOrder: function (data, actions) {
+                    // Set up the transaction
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '0.01'
+                            }
+                        }]
                     });
+                }
+            }).render('#paypal-button-container');
 
-                }).catch(function (error) {
-                    console.log("ERROR in GET: ", error);
-                    throw error;
-                });
-            }
-        }).render('#paypal-button-container');
+        // paypal.Buttons({
+        //     // style: {
+        //     //     height: 25
+        //     // },
+        //     // style: {
+        //     //     layout: 'vertical',
+        //     //     color: 'blue',
+        //     //     shape: 'rect',
+        //     //     label: 'paypal'
+        //     // },
 
-        function presentPayload(info){
+        //     createOrder: function (data, actions) {
+
+        //         return actions.order.create(
+        //             paymentData
+        //         );
+        //     },
+        //     onError: function (error) {
+        //         console.log("Error in callback: ", error);
+        //         presentError("We have an error in an SDK callback.", error);
+        //     },
+        //     onApprove: function (data, actions) {
+
+        //         console.log("onApprove data: ", data);
+        //         const orderId = data.orderID;
+
+        //         // Get the transaction details
+        //         return actions.order.get().then(function (order) {
+
+        //             // Optionally display the transaction details to the buyer
+        //             console.log("Order GET: ", order);
+
+        //             // show a message and present the request/response data 
+        //             var message = "<ul class='list'><li>Customer approval completed</li>" +
+        //                 "<li>The order details were retrieved via client 'actions.order.get()' and are viewable below.</li>" +
+        //                 "<li>Click the button and we will 'Capture' via our built-in order client.</li></ul>";
+        //             presentInfoMessage("Review", message);
+        //             presentPayload(new ResponseInfo("GET", "N/A - uses built-in client", data, order));
+
+        //             // show or hide forms
+        //             $("#paymentForm").hide();
+        //             $("#authForm").show();
+
+        //             // update the "steps"
+        //             $("#stepOne").removeClass("active");
+        //             $("#stepTwo").addClass("active");
+
+        //             // handle the authorization click
+        //             $("#authorize").click(function () {
+        //                 console.log("Authorizing the order: ", orderId);
+
+        //                 // show the dimmer / loader
+        //                 $("body").dimmer("show");
+
+        //                 actions.order.authorize().then(function (orderAuth) {
+        //                     console.log("Order/Auth: ", orderAuth);
+
+        //                     const auth = orderAuth.purchase_units[0].payments.authorizations[0]
+        //                     var authId = auth.id;
+
+        //                     // show the request/response data
+        //                     // show a message and present the request/response data 
+        //                     var message = "<ul class='list'><li>Auth successful.</li>" +
+        //                         "<li>The response details returned in the order authorization are below.</li>" +
+        //                         "<li>Click the button and we will 'Capture' the authorization using a server side call to Payments V2 REST.</li></ul>";
+        //                     presentInfoMessage("Capture", message);
+        //                     presentPayload(new ResponseInfo("POST", "N/A - uses built-in client.", order, orderAuth));
+
+        //                     // show or hide forms 
+        //                     $("#authForm").hide();
+        //                     $("#captureForm").show();
+
+        //                     // update the "steps"
+        //                     $("#stepTwo").removeClass("active");
+        //                     $("#stepThree").addClass("active");
+
+        //                     $("body").dimmer("hide");
+
+        //                     $("#capture").click(function () {
+        //                         console.log("Capturing the auth: ", authId);
+
+        //                         // show the dimmer / loader
+        //                         $("body").dimmer("show");
+
+        //                         fetch(`/v2/payments/authorizations/${auth.id}/capture`, {
+        //                             method: 'POST',
+        //                             headers: {
+        //                                 "Content-Type": "application/json"
+        //                             }
+        //                         }).then(function (response) {
+        //                             return response.json();
+        //                         }).then(function (info) {
+        //                             console.log("Auth Capture: ", info.response);
+
+        //                             // show the request/response data
+        //                             var message = "<ul class='list'><li>End.</li>" +
+        //                                 "<li>We sucessfully captured the auth.</li>" +
+        //                                 "<li>Capture response details are viewable below.</li></ul>";
+        //                             presentInfoMessage("Capture", message);
+        //                             presentPayload(info);
+
+        //                             // show or hide forms 
+        //                             $("#captureForm").hide();
+        //                             $("#finalForm").show();
+
+        //                             // update the "steps"
+        //                             $("#stepThree").removeClass("active");
+        //                             $("#stepFour").addClass("active");
+
+        //                             $("body").dimmer("hide");
+
+        //                         }), function (error) {
+        //                             $("body").dimmer("hide");
+        //                             console.log("ERROR in capture: ", e);
+        //                             throw e;
+        //                         }
+        //                     });
+
+        //                 }).catch(function (e) {
+        //                     console.log("ERROR in AUTHORIZE: ", e);
+        //                     throw e;
+
+        //                 }).finally(function () {
+
+        //                     $("body").dimmer("hide");
+        //                 })
+        //             });
+
+        //         }).catch(function (error) {
+        //             console.log("ERROR in GET: ", error);
+        //             throw error;
+        //         });
+        //     }
+        // }).render('#paypal-button-container');
+
+        function presentPayload(info) {
             $("#requestType").html(info.type);
             $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
             $("#requestPayload").html("<pre>" + JSON.stringify(info.request, null, 1) + "</pre>");
@@ -371,7 +390,7 @@
         function presentError(header = 'General Error', error, debug = false) {
             $("#errorMessageHeader").html(header);
             $("#errorMessageContent").html(error.message);
-            if (debug){
+            if (debug) {
                 $("#errorStack").html(error.stack);
             }
             $("#errorMessage").show();
@@ -393,25 +412,25 @@
 
     </script>
     <script>
-            $("#home, #cancel, #cancel2, #cancel3").click(function () {
-                /* function goes in here */
-                location.reload()
-            });
-            $('.ui.accordion')
-                .accordion()
-                ;
-    
-            $('.ui.dropdown')
-                .dropdown(this)
-                // console.log("Dropdown: ", JSON.stringify(this));
-                ;
-    
-            $('.message .close')
-                .on('click', function () {
-                    $("#errorMessage").hide();
-                })
-                ;
-        </script>
+        $("#home, #cancel, #cancel2, #cancel3").click(function () {
+            /* function goes in here */
+            location.reload()
+        });
+        $('.ui.accordion')
+            .accordion()
+            ;
+
+        $('.ui.dropdown')
+            .dropdown(this)
+            // console.log("Dropdown: ", JSON.stringify(this));
+            ;
+
+        $('.message .close')
+            .on('click', function () {
+                $("#errorMessage").hide();
+            })
+            ;
+    </script>
 </body>
 
 </html>
