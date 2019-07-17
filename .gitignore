@@ -62,4 +62,4 @@ typings/
 .next
 
 # configuration files
-config/default.json
+# config/default.json
