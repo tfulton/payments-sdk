@@ -10,7 +10,7 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
 
 
 ## Requirements ##
-* **Node.js** - Download and install node.js for your particular platform [here](https://nodejs.org/en/).  *This application currently requires a recent version of Node.js **v13.3.0** (due to to the use of certain interfaces).
+* **Node.js** - Download and install node.js for your particular platform [here](https://nodejs.org/en/).  This application currently requires a recent version of Node.js (tested with **v13.3.0**) due to to the use of certain interfaces.
 
 ## Install Local ##
 * Clone or download this repository to your local machine.  
@@ -20,7 +20,7 @@ You can either download a .zip and uncompress the files locally, or clone the re
 ## Configure Backend ##
 * Create PayPal sandbox REST application and NVP/SOAP credentials per your particular requirements.
 * Customize your credentials:
-    * Local deployment:  See [./config/local.example.js](./config/local.example.js)
+    * Local deployment:  See [./config/local.example.js](./config/local.example.json)
     * Remote deployment:  Review the [config documentation](./config/Readme.md) for your particular needs.
 
 ## Configure PP JavaScript SDK Client Library ##
