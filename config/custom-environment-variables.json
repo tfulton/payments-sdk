@@ -1,0 +1,7 @@
+{
+    "keys": {
+        "merchantId": "MERCHANT_ID",
+        "publicKey": "PUBLIC_KEY",
+        "privateKey": "PRIVATE_KEY"
+    }
+}
