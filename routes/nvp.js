@@ -369,6 +369,7 @@ router.post('/doAuth', doAuth, function (req, res, next) {
 });
 
 const combinedDoECDoAuth = [doEC, doAuth];
+// const combinedDoECDoAuth = [doEC];
 router.post('/doCombined', combinedDoECDoAuth, function (req, res, next) {
     res.status(201).send(JSON.stringify(res.locals.body));
 });
