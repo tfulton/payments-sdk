@@ -64,4 +64,3 @@ typings/
 # configuration files
 # config/default.json
 /config/local.json
-/config/default.json

@@ -8,31 +8,31 @@ Project which highlights PayPal JavaScript implementations using various PayPal 
 * Server side NVP
 * Server side BEAM + Orders v2
 
-## Setup Instructions
-1. Install packages:
-    ```
-    npm install
-    ```
-2. Update the PP JavaScript SDK querystring with your clientId.  In the following:
+
+## Requirements ##
+* **Node.js** - Download and install node.js for your particular platform [here](https://nodejs.org/en/).  *This application currently requires a recent version of Node.js **v13.3.0** (due to to the use of certain interfaces).
+
+## Install Local ##
+* Clone or download this repository to your local machine.  
+You can either download a .zip and uncompress the files locally, or clone the repository using Git.  More detailed instructions can be found [here](https://github.paypal.com/NA-LE/paypal-jsv4-postman/blob/master/GitSetup.md).
+* Perform ```npm install``` within the project directory.
+
+## Configure Backend ##
+* Create PayPal sandbox REST application and NVP/SOAP credentials per your particular requirements.
+* Customize your credentials:
+    * Local deployment:  See [./config/local.example.js](./config/local.example.js)
+    * Remote deployment:  Review the [config documentation](./config/Readme.md) for your particular needs.
+
+## Configure PP JavaScript SDK Client Library ##
+Update the PP JavaScript SDK querystring with your clientId.  In the following:
    * Client Orders [here](./public/index.html#L15)
    * Payments v1 [here](./public/index_v1.html#L15)
    * Orders v2 [here](./public/index_v2.html#L15)
    * NVP [here](./public/index_nvp.html#L15)
    * BEAM [here](./public/index_ba.html#L15)
 
-3. Customize your API credentials in the [./config/default.example.json](./config/default.example.json) configuration file.  Specfically:
-   * Add your specific credentials for NVP, REST or what-have-you.
-   * RENAME the file to "default.json" within the existing directory (this file will be ignored by GIT should you choose to push the contents out into the public!)
+## Run ##
+```npm start``` and then navigate your browser to http://localhost:3000/ (local deloyment only)
 
-4. Start the server:
-    ```
-    npm start
-    ```
-
-    By default, this runs the app on port `3000`. You can configure the port by setting the environmental variable `PORT`.
-
-NOTES:
-* Needs testing!!!
-
-## Heroku Preparation
-Please see the Heroku instructions in a related repo [here](https://github.paypal.com/NA-LE/paypal-jsv4-venmo#heroku-preparation)
+## Run on Heroku ##
+See the documents at the following location for a quick Heroku setup guide:  https://github.paypal.com/NA-LE/paypal-jsv4-venmo#heroku-preparation
