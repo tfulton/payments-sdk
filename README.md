@@ -20,11 +20,11 @@ You can either download a .zip and uncompress the files locally, or clone the re
 ## Configure Backend ##
 * Create PayPal sandbox REST application and NVP/SOAP credentials per your particular requirements.
 * Customize your credentials:
-    * Local deployment:  See [./config/local.example.js](./config/local.example.json)
+    * Local deployment:  Update [./config/local.example.json](./config/local.example.json) with your credentials and rename to **local.json**.
     * Remote deployment:  Review the [config documentation](./config/Readme.md) for your particular needs.
 
 ## Configure PP JavaScript SDK Client Library ##
-Update the PP JavaScript SDK querystring with your clientId.  In the following:
+The PayPal Javascript SDK requires a valid clientId to load.  Update the PP JavaScript SDK querystring with your clientId in the following:
    * Client Orders [here](./public/index.html#L15)
    * Payments v1 [here](./public/index_v1.html#L15)
    * Orders v2 [here](./public/index_v2.html#L15)
