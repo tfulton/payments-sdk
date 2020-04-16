@@ -12,16 +12,19 @@
 
     <!-- Payment SDK -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&commit=false&vault=true"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&disable-funding=credit,card&commit=false&currency=USD&intent=authorize"></script>
     <style>
         pre {
             font-size: 80%;
         }
     </style>
+
+    <script src="https://www.paypalobjects.com/upstream/bizcomponents/js/messaging.js"
+        data-pp-account="WX74857PVJ448"></script>
 </head>
 
 <body>
-        
+
     <!-- BEGIN: HEADER -->
     <div class="ui top attached menu">
         <div class="ui container">
@@ -32,75 +35,96 @@
                 Integration
                 <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a class="item" href="/">Client Orders v2</a>
+                    <a class="item active selected" href="/">Client Orders v2</a>
                     <a class="item" href="/v1">Server Payments v1 (AS2)</a>
                     <a class="item" href="/v2">Server Orders v2 (AS2)</a>
                     <a class="item" href="/nvp">Server NVP (AS2)</a>
-                    <a class="item active selected" href="/ba">Server Billing Agreements</a>
+                    <a class="item" href="/ba">Server Billing Agreements</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- END: HEADER -->
-    
+
+    <!-- BANNER CODE -->
+    <div class="ui raised container segment visible content">
+        <div id="pp-message"></div>
+    </div>
+    <script>
+        paypal.Messages({
+            amount: 900,
+            style: {
+                layout: 'text',
+                logo: {
+                    type: 'primary',
+                    position: 'left'
+                }
+            }
+        })
+            .render('#pp-message');</script>
+    <!-- END BANNER CODE -->
+
+
     <!-- BEGIN: MAIN CONTENT -->
     <div class="ui container" id="mainSection">
         <p></p>
-        <h3 class="header">Server Billing Agreements</h3>
+        <h3 class="header">Client Orders v2</h3>
         <div class="ui top attached tabular menu">
             <a class="item active" data-tab="first" id="stepOne">Begin</a>
             <a class="item" data-tab="second" id="stepTwo">Review</a>
             <a class="item" data-tab="third" id="stepThree">Capture</a>
             <a class="item" data-tab="third" id="stepFour">End</a>
         </div>
-    
+
         <div class="ui bottom attached tab segment active">
-    
+
             <div class="ui negative message hidden" id="errorMessage">
                 <i class="close icon"></i>
                 <div class="header" id="errorMessageHeader"></div>
                 <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
             </div>
-    
+
             <div class="ui message" id="infoMessage">
                 <div class="header"></div>
                 <p></p>
             </div>
-    
+
             <!-- PAYMENT FORM -->
             <div class="ui container" id="paymentForm">
                 <div id="paypal-button-container"></div>
             </div>
-    
+
             <!-- ORDER REVIEW FORM -->
             <div class="ui form" id="authForm" hidden>
+                <input type="hidden" id="orderId" />
                 <button class="ui primary button" id="authorize">
-                    Create Order
+                    Authorize Order
                 </button>
                 <button class="ui button" id="cancel">
                     Discard
                 </button>
             </div>
-    
+
             <!-- AUTH REVIEW FORM -->
             <div class="ui form" id="captureForm" hidden>
                 <input type="hidden" id="authId" />
                 <button class="ui primary button" id="capture">
-                    Capture Order
+                    Capture Auth
                 </button>
                 <button class="ui button" id="cancel">
                     Discard
                 </button>
             </div>
-    
+
             <!-- CAPTURE REVIEW FORM -->
             <div class="ui form" id="finalForm" hidden>
                 <button class="ui primary button" id="cancel">
                     Do it Again
                 </button>
             </div>
-    
+
             <!-- REQUEST/RESPONSE INFO HERE -->
             <div class="ui divider"></div>
             <div class="ui styled fluid accordion">
@@ -127,47 +151,25 @@
                 </div>
             </div>
         </div>
-    
+
     </div>
     <!-- END: MAIN CONTENT -->
-    
+
     <script>
 
-        const billingData = {
-                description: 'Billing Agreement',
-                shipping_address:
-                {
-                    line1: '1350 North First Street',
-                    city: 'San Jose',
-                    state: 'CA',
-                    postal_code: '95112',
-                    country_code: 'US',
-                    recipient_name: 'Todd Fulton'
-                },
-                payer: { payment_method: 'PAYPAL' },
-                plan:
-                {
-                    type: 'MERCHANT_INITIATED_BILLING_SINGLE_AGREEMENT',
-                    merchant_preferences:
-                    {
-                        return_url: 'https://www.paypal.com/checkoutnow/error',
-                        cancel_url: 'https://www.paypal.com/checkoutnow/error',
-                        notify_url: 'https://www.paypal.com/checkoutnow/error',
-                        accepted_pymt_type: 'INSTANT',
-                        skip_shipping_address: false,
-                        immutable_shipping_address: true
-                    }
-                }
-            }
-
-        const paymentData= {
-            intent: "CAPTURE",
+        /**
+         * We are using a somewhat sophisticated order request payload here.  The
+         * idea is to provide more example into the options available.
+         * */
+        const paymentData = {
+            intent: "AUTHORIZE",
             // processing_instruction: "ORDER_SAVED_EXPLICITLY",  THIS IS REQUIRED FOR ORDERS ONLY!!!!
             application_context: {
                 brand_name: "Todd's Clothing Shop",
                 locale: "en-US",
                 landing_page: "BILLING",
-                shipping_preference: "SET_PROVIDED_ADDRESS",
+                shipping_preference: "GET_FROM_FILE",
+                // shipping_preference: "SET_PROVIDED_ADDRESS",
                 return_url: "https://www.paypal.com/checkoutnow/error",
                 cancel_url: "https://www.paypal.com/checkoutnow/error"
             },
@@ -245,92 +247,84 @@
         }
 
         // set the info message
-        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a request to our custom server-side where we create a new order via Orders v2.")
+        presentInfoMessage("Begin", "Click a button and the JavaScript SDK makes a client-side request to create a new order via Orders v2.")
 
         // set the request/response info
-        $("#requestURL").html("<strong>POST </strong>https://api.sandbox.paypal.com/v2/checkout/orders");
-        $("#requestPayload").html("<pre>" + JSON.stringify(billingData, null, 1) + "</pre>");
+        $("#requestURL").html("N/A - uses built in client-side order client.");
+        $("#requestPayload").html("<pre>" + JSON.stringify(paymentData, null, 1) + "</pre>");
+
 
         paypal.Buttons({
-            // STEP #1:  CREATE THE BILLING AGREEMENT AND GET CUSTOMER APPROVAL
-            createBillingAgreement: function () {
-                // SERVER SIDE ORDER CREATE
-                return fetch('/beam/createBAToken', {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(billingData)
-                })
-                    .then(response => response.json())
-                    .then(json => {
-                        console.log("CreateBAToken: ", json);
-                        return json.response.token_id;
-                    });
+            // style: {
+            //     height: 25
+            // },
+            style: {
+                layout: 'vertical',
+                color: 'blue',
+                shape: 'rect',
+                label: 'paypal'
             },
-            onError: function(error){
+
+            createOrder: function (data, actions) {
+
+                return actions.order.create(
+                    paymentData
+                );
+            },
+            onError: function (error) {
                 console.log("Error in callback: ", error);
                 presentError("We have an error in an SDK callback.", error);
+            },
+            onShippingChange: function (data, actions) {
+                console.log("data: ", data);
+                console.log("actions: ", actions);
             },
             onApprove: function (data, actions) {
 
                 console.log("onApprove data: ", data);
-                const billingToken = data.billingToken;
                 const orderId = data.orderID;
 
-                // show or hide forms
-                $("#paymentForm").hide();
-                $("#authForm").show();
+                // Get the transaction details
+                return actions.order.get().then(function (order) {
 
-                // STEP #2:  CREATE THE BILLING AGREEMENT USING THE APPROVED BA TOKEN FROM ABOVE
-                return fetch(`/beam/createBA/${billingToken}`, {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }).then(response => {
-                    return response.json();
-                }).then(info => {
-                    const billingAgreement = info.response;
-                    console.log("BA Create: ", billingAgreement);
+                    // Optionally display the transaction details to the buyer
+                    console.log("Order GET: ", order);
 
                     // show a message and present the request/response data 
-                    var message = "<ul class='list'><li>Customer Billing Agreement approval completed</li>" +
-                        "<li>The billing agreement was created and details are available below.</li>" +
-                        "<li>Click the button and create a new order and afterwards capture using the new billing agreement.</li></ul>";
+                    var message = "<ul class='list'><li>Customer approval completed</li>" +
+                        "<li>The order details were retrieved via client 'actions.order.get()' and are viewable below.</li>" +
+                        "<li>Click the button and we will 'Capture' via our built-in order client.</li></ul>";
                     presentInfoMessage("Review", message);
-                    presentPayload(info);
+                    presentPayload(new ResponseInfo("GET", "N/A - uses built-in client", data, order));
+
+                    // show or hide forms
+                    $("#paymentForm").hide();
+                    $("#authForm").show();
 
                     // update the "steps"
                     $("#stepOne").removeClass("active");
                     $("#stepTwo").addClass("active");
 
-                    // STEP #3:  WE CREATE A V2 ORDER -- WHICH WE WILL CAPTURE USING THE BILLING AGREEMENT
+                    // handle the authorization click
                     $("#authorize").click(function () {
-                        console.log("Create order with: ", paymentData);
+                        console.log("Authorizing the order: ", orderId);
 
                         // show the dimmer / loader
                         $("body").dimmer("show");
 
-                        fetch(`/v2/orders/`, {
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(paymentData)
-                        }).then(function (response) {
-                            return response.json();
-                        }).then(function (info) {
-                            const order = info.response;
-                            console.log("Order CREATE data: ", order);
+                        actions.order.authorize().then(function (orderAuth) {
+                            console.log("Order/Auth: ", orderAuth);
+
+                            const auth = orderAuth.purchase_units[0].payments.authorizations[0]
+                            var authId = auth.id;
 
                             // show the request/response data
                             // show a message and present the request/response data 
-                            var message = "<ul class='list'><li>Order create successful.</li>" +
-                                "<li>The response details for the new order are below.</li>" +
-                                "<li>Click the button and we will 'Capture' the order via REST using the billing agreement we created prior.</li></ul>";
+                            var message = "<ul class='list'><li>Auth successful.</li>" +
+                                "<li>The response details returned in the order authorization are below.</li>" +
+                                "<li>Click the button and we will 'Capture' the authorization using a server side call to Payments V2 REST.</li></ul>";
                             presentInfoMessage("Capture", message);
-                            presentPayload(info);
+                            presentPayload(new ResponseInfo("POST", "N/A - uses built-in client.", order, orderAuth));
 
                             // show or hide forms 
                             $("#authForm").hide();
@@ -342,37 +336,25 @@
 
                             $("body").dimmer("hide");
 
-                            // STEP #4:  CAPTURE THAT ORDER, BECAUSE WE HAVE A VALID BILLING AGREEMENT WITH WHICH TO DO IT
                             $("#capture").click(function () {
-
-                                var capturePayload = {
-                                        payment_source: {
-                                            token: {
-                                                id: billingAgreement.id,
-                                                type: "BILLING_AGREEMENT"
-                                            }
-                                        }
-                                    }
-                                console.log("Capturing the order id: ", order.id);
-                                console.log("Capturing the order with: ", capturePayload);
+                                console.log("Capturing the auth: ", authId);
 
                                 // show the dimmer / loader
                                 $("body").dimmer("show");
 
-                                fetch(`/v2/orders/${order.id}/capture`, {
+                                fetch(`/v2/payments/authorizations/${auth.id}/capture`, {
                                     method: 'POST',
                                     headers: {
                                         "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify(capturePayload)
+                                    }
                                 }).then(function (response) {
                                     return response.json();
                                 }).then(function (info) {
-                                    console.log("Order Capture: ", info.response);
+                                    console.log("Auth Capture: ", info.response);
 
                                     // show the request/response data
                                     var message = "<ul class='list'><li>End.</li>" +
-                                        "<li>We sucessfully captured the order.</li>" +
+                                        "<li>We sucessfully captured the auth.</li>" +
                                         "<li>Capture response details are viewable below.</li></ul>";
                                     presentInfoMessage("Capture", message);
                                     presentPayload(info);
@@ -392,23 +374,26 @@
                                     console.log("ERROR in capture: ", e);
                                     throw e;
                                 }
-                            })
+                            });
 
-                        }), function (e) {
-                            $("body").dimmer("hide");
-                            console.log("ERROR in SAVE/AUTHORIZE: ", e);
+                        }).catch(function (e) {
+                            console.log("ERROR in AUTHORIZE: ", e);
                             throw e;
-                        }
+
+                        }).finally(function () {
+
+                            $("body").dimmer("hide");
+                        })
                     });
 
-                }), function (error) {
+                }).catch(function (error) {
                     console.log("ERROR in GET: ", error);
                     throw error;
-                };
+                });
             }
         }).render('#paypal-button-container');
 
-        function presentPayload(info){
+        function presentPayload(info) {
             $("#requestType").html(info.type);
             $("#requestURL").html(`<strong>${info.type} </strong>${info.url}`);
             $("#requestPayload").html("<pre>" + JSON.stringify(info.request, null, 1) + "</pre>");
@@ -419,16 +404,24 @@
         function presentError(header = 'General Error', error, debug = false) {
             $("#errorMessageHeader").html(header);
             $("#errorMessageContent").html(error.message);
-            if (debug){
+            if (debug) {
                 $("#errorStack").html(error.stack);
             }
             $("#errorMessage").show();
         }
 
-
         function presentInfoMessage(header, message) {
             $("#infoMessage .header").html(header);
             $("#infoMessage p").html(message);
+        }
+
+        class ResponseInfo {
+            constructor(type, url, request, response) {
+                this.type = type;
+                this.url = url;
+                this.request = request;
+                this.response = response;
+            }
         }
 
     </script>
