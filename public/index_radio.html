@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Smart Buttons - Payments SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- Payment SDK -->
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&components=buttons,funding-eligibility,marks&commit=false&currency=USD&intent=capture"></script>
+    <style>
+        pre {
+            font-size: 80%;
+        }
+    </style>
+
+    <script src="https://www.paypalobjects.com/upstream/bizcomponents/js/messaging.js"
+        data-pp-account="WX74857PVJ448"></script>
+</head>
+
+<body>
+
+    <!-- BANNER CODE -->
+    <div class="ui raised container segment visible content">
+        <div id="pp-message"></div>
+    </div>
+    <script>
+        paypal.Messages({
+            amount: 900,
+            style: {
+                layout: 'text',
+                logo: {
+                    type: 'primary',
+                    position: 'left'
+                }
+            }
+        })
+            .render('#pp-message');</script>
+    <!-- END BANNER CODE -->
+
+
+    <!-- BEGIN: MAIN CONTENT -->
+    <div class="ui container" id="mainSection">
+        <p></p>
+        <h3 class="header">Client Orders v2</h3>
+
+        <div class="ui bottom attached segment active">
+
+            <div class="ui negative message hidden" id="errorMessage">
+                <i class="close icon"></i>
+                <div class="header" id="errorMessageHeader"></div>
+                <p id="errorMessageContent"></p>
+                <p id="errorStack"></p>
+            </div>
+
+            <div class="ui message" id="infoMessage">
+                <div class="header"></div>
+                <p></p>
+            </div>
+
+            <!-- PAYMENT FORM -->
+            <h3 class="ui header">Section PayPal</h3>
+            <div class="ui container" id="paymentForm">
+                <div id="paypal-button"></div>
+            </div>
+            <div class="ui hidden divider"></div>
+
+            <!-- ORDER REVIEW FORM -->
+            <h3 class="ui header">Section Credit</h3>
+            <div class="ui form" id="authForm">
+                <div id="credit-button"></div>
+            </div>
+            <div class="ui hidden divider"></div>
+
+            <!-- AUTH REVIEW FORM -->
+            <h3 class="ui header">Section Card</h3>
+            <div class="ui form" id="captureForm">
+                <div id="card-button"></div>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- END: MAIN CONTENT -->
+
+    <script>
+
+        paypal.getFundingSources().forEach(function (fundingSource) {
+
+            // console.log("Funding Source: ", fundingSource);
+            // Initialize the buttons
+            const button = paypal.Buttons({
+                fundingSource: fundingSource,
+
+                createOrder: function (data, actions) {
+                    // This function sets up the details of the transaction, including the amount and line item details.
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '0.01'
+                            }
+                        }]
+                    });
+                },
+                onApprove: function (data, actions) {
+                    // This function captures the funds from the transaction
+                    return actions.order.get().then(function (orderDetails) {
+                        console.log("Order Details: ", orderDetails);
+
+                        // now auto capture it
+                        actions.order.capture().then(function (captureDetails) {
+                            // This function shows a transaction success message to your buyer.
+                            console.log("Capture Details: ", captureDetails);
+                        });
+                    })
+                },
+                onCancel: function(cancelObj) {
+                    console.log("Cancelled by buyer.");
+                }
+            });
+
+            // Check if the button is eligible
+            console.log("Funding Source", fundingSource);
+            if (fundingSource == paypal.FUNDING.PAYPAL) {
+                button.render('#paypal-button');
+            }
+            else if (fundingSource == paypal.FUNDING.CREDIT) {
+                button.render('#credit-button');
+            }
+            else if (fundingSource == paypal.FUNDING.CARD) {
+                button.render('#card-button');
+            }
+
+        });
+
+    </script>
+</body>
+
+</html>
