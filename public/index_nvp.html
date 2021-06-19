@@ -148,7 +148,7 @@
                     custom_id: "MAR01_001_INTERNAL_ONLY",
                     description: "Purchase Unit Description",
                     soft_descriptor: "soft description",
-                    invoice_id: "MAR01_001_INVOICEID",
+                    invoice_id: "testing",
                     amount: {
                         currency_code: "USD",
                         value: 8.00,
@@ -224,7 +224,10 @@
 
         paypal.Buttons({
             style: {
-                height: 25
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'paypal'
             },
 
             createOrder: function (data, actions) {

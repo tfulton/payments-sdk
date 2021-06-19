@@ -12,7 +12,7 @@
 
     <!-- Payment SDK -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&intent=authorize"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&buyer-country=NL&locale=en_NL"></script>
     <style>
         pre {
             font-size: 80%;
@@ -47,26 +47,6 @@
 
     <!-- END: HEADER -->
 
-    <!-- BANNER CODE -->
-    <div class="ui raised container segment visible content">
-        <div id="pp-message"></div>
-    </div>
-    <script>
-        paypal.Messages({
-            amount: 900,
-            style: {
-                layout: 'text',
-                logo: {
-                    type: 'primary',
-                    position: 'left'
-                }
-            }
-        })
-            .render('#pp-message');
-    </script>
-    <!-- END BANNER CODE -->
-
-
     <!-- BEGIN: MAIN CONTENT -->
     <div class="ui container" id="mainSection">
         <p></p>
@@ -90,11 +70,6 @@
             <div class="ui message" id="infoMessage">
                 <div class="header"></div>
                 <p></p>
-            </div>
-            <div data-pp-message data-pp-placement="home" data-pp-style-layout="text"
-             data-pp-style-logo-type="primary"
-                data-pp-style-logo-position="left" data-pp-style-text-color="black" data-pp-style-text-size="12"
-                data-pp-style-text-align="left">
             </div>
 
             <!-- PAYMENT FORM -->
@@ -161,50 +136,33 @@
     </div>
     <!-- END: MAIN CONTENT -->
 
-    <script src="./js/utils.js"></script>
     <script>
 
         /**
          * We are using a somewhat sophisticated order request payload here.  The
          * idea is to provide more example into the options available.
          * */
-        let uniqueId = uuidv4();
         const paymentData = {
-            // intent: "AUTHORIZE",
+            // intent: "CAPTURE",
             // processing_instruction: "ORDER_SAVED_EXPLICITLY",  THIS IS REQUIRED FOR ORDERS ONLY!!!!
-            application_context: {
-                brand_name: "Todd's Clothing Shop",
-                locale: "en-US",
-                landing_page: "BILLING",
-                shipping_preference: "SET_PROVIDED_ADDRESS",
-                return_url: "https://www.paypal.com/checkoutnow/error",
-                cancel_url: "https://www.paypal.com/checkoutnow/error"
-            },
+            // application_context: {
+            //     brand_name: "Todd's Clothing Shop",
+            //     locale: "en-DE",
+            //     landing_page: "BILLING",
+            //     shipping_preference: "SET_PROVIDED_ADDRESS",
+            //     return_url: "https://www.paypal.com/checkoutnow/error",
+            //     cancel_url: "https://www.paypal.com/checkoutnow/error"
+            // },
             purchase_units: [
                 {
-                    reference_id: uniqueId,
-                    custom_id: uniqueId,
+                    reference_id: "MAR01_001_REFID",
+                    custom_id: "MAR01_001_INTERNAL_ONLY",
                     description: "Purchase Unit Description",
                     soft_descriptor: "soft description",
-                    invoice_id: uniqueId,
+                    invoice_id: "MAR01_001_INVOICEID",
                     amount: {
-                        currency_code: "USD",
-                        value: 150.00,
-                    },
-                    shipping: {
-                        method: "United States Postal Service",
-                        address: {
-                            // name: {
-                            //     given_name: "Sarah",
-                            //     surname: "Serverton"
-                            // },
-                            address_line_1: "123 Townsend St",
-                            address_line_2: "Floor 4",
-                            admin_area_2: "San Francisco",
-                            admin_area_1: "CA",
-                            postal_code: "94107",
-                            country_code: "US"
-                        }
+                        currency_code: "EUR",
+                        value: 15.00,
                     }
                 }
             ]
@@ -224,9 +182,9 @@
             // },
             style: {
                 layout: 'vertical',
-                color: 'blue',
-                shape: 'rect',
-                label: 'paypal'
+                color: 'silver',
+                // shape: 'rect',
+                // label: 'paypal'
             },
 
             createOrder: function (data, actions) {
@@ -259,96 +217,7 @@
 
                     // show or hide forms
                     $("#paymentForm").hide();
-                    $("#authForm").show();
-
-                    // update the "steps"
-                    $("#stepOne").removeClass("active");
-                    $("#stepTwo").addClass("active");
-
-                    // handle the authorization click
-                    $("#authorize").click(function () {
-                        console.log("Authorizing the order: ", orderId);
-
-                        // show the dimmer / loader
-                        $("body").dimmer("show");
-
-                        actions.order.authorize().then(function (orderAuth) {
-                            console.log("Order/Auth: ", orderAuth);
-
-                            const auth = orderAuth.purchase_units[0].payments.authorizations[0]
-                            var authId = auth.id;
-
-                            // show the request/response data
-                            // show a message and present the request/response data 
-                            var message = "<ul class='list'><li>Auth successful.</li>" +
-                                "<li>The response details returned in the order authorization are below.</li>" +
-                                "<li>Click the button and we will 'Capture' the authorization using a server side call to Payments V2 REST.</li></ul>";
-                            presentInfoMessage("Capture", message);
-                            presentPayload(new ResponseInfo("POST", "N/A - uses built-in client.", order, orderAuth));
-
-                            // show or hide forms 
-                            $("#authForm").hide();
-                            $("#captureForm").show();
-
-                            // update the "steps"
-                            $("#stepTwo").removeClass("active");
-                            $("#stepThree").addClass("active");
-
-                            $("body").dimmer("hide");
-
-                            $("#capture").click(function () {
-                                console.log("Capturing the auth: ", authId);
-
-                                // show the dimmer / loader
-                                $("body").dimmer("show");
-
-                                fetch(`/v2/payments/authorizations/${auth.id}/capture`, {
-                                    method: 'POST',
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    }
-                                }).then(function (response) {
-                                    return response.json();
-                                }).then(function (info) {
-                                    console.log("Auth Capture: ", info.response);
-
-                                    // show the request/response data
-                                    var message = "<ul class='list'><li>End.</li>" +
-                                        "<li>We sucessfully captured the auth.</li>" +
-                                        "<li>Capture response details are viewable below.</li></ul>";
-                                    presentInfoMessage("Capture", message);
-                                    presentPayload(info);
-
-                                    // show or hide forms 
-                                    $("#captureForm").hide();
-                                    $("#finalForm").show();
-
-                                    // update the "steps"
-                                    $("#stepThree").removeClass("active");
-                                    $("#stepFour").addClass("active");
-
-                                    $("body").dimmer("hide");
-
-                                }), function (error) {
-                                    $("body").dimmer("hide");
-                                    console.log("ERROR in capture: ", e);
-                                    throw e;
-                                }
-                            });
-
-                        }).catch(function (e) {
-                            console.log("ERROR in AUTHORIZE: ", e);
-                            throw e;
-
-                        }).finally(function () {
-
-                            $("body").dimmer("hide");
-                        })
-                    });
-
-                }).catch(function (error) {
-                    console.log("ERROR in GET: ", error);
-                    throw error;
+                    //$("#authForm").show();
                 });
             }
         }).render('#paypal-button-container');
@@ -384,6 +253,26 @@
             }
         }
 
+    </script>
+    <script>
+        $("#home, #cancel, #cancel2, #cancel3").click(function () {
+            /* function goes in here */
+            location.reload()
+        });
+        $('.ui.accordion')
+            .accordion()
+            ;
+
+        $('.ui.dropdown')
+            .dropdown(this)
+            // console.log("Dropdown: ", JSON.stringify(this));
+            ;
+
+        $('.message .close')
+            .on('click', function () {
+                $("#errorMessage").hide();
+            })
+            ;
     </script>
 </body>
 

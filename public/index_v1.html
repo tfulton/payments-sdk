@@ -12,7 +12,7 @@
 
     <!-- Payment SDK -->
     <script
-        src="https://www.paypal.com/sdk/js?client-id=[YOUR CLIENT ID GOES HERE]&commit=false&currency=USD&intent=order"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AYidKuTmO-c-5kUElRNtNin579BxO3G6dzYK9rLuY0AUp01QY67KZTRXWedVDAHYdhE7IvgPuWDtBqfq&env=sandbox_v2&intent=order"></script>
     <style>
         pre {
             font-size: 80%;
@@ -131,8 +131,10 @@
     </div>
     <!-- END: MAIN CONTENT -->
 
+    <script src="./js/utils.js"></script>
     <script>
 
+        let uniqueId = uuidv4();
         const paymentData = {
             intent: 'order',
             payer: {
@@ -144,10 +146,10 @@
             transactions: [
                 {
                     amount: {
-                        total: '23.00',
+                        total: '50.00',
                         currency: 'USD',
                         details: {
-                            subtotal: '18.00',
+                            subtotal: '45.00',
                             tax: '0.00',
                             shipping: '5.00',
                             handling_fee: '0.00',
@@ -156,19 +158,19 @@
                         }
                     },
                     description: 'The payment transaction description.',
-                    custom: 'EBAY_EMS_90048630024435',
-                    invoice_number: '48787589673',
+                    custom: uniqueId,
+                    invoice_number: uniqueId,
                     payment_options: {
                         allowed_payment_method: 'INSTANT_FUNDING_SOURCE'
                     },
-                    soft_descriptor: 'ECHI5786786',
+                    soft_descriptor: uniqueId,
                     item_list: {
                         items: [
                             {
                                 name: 'hat',
                                 description: 'Brown hat.',
                                 quantity: '1',
-                                price: '3',
+                                price: '30',
                                 tax: '0.00',
                                 sku: '1',
                                 currency: 'USD'
@@ -212,7 +214,10 @@
 
         paypal.Buttons({
             style: {
-                height: 25
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'paypal'
             },
 
             // STEP #1:  CREATE A NEW PAYMENT AND GET CUSTOMER APPROVAL

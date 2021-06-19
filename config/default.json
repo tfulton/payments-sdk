@@ -2,7 +2,7 @@
   "env": {
     "sandbox": {
       "rest": {
-        "baseURL": "https://api.sandbox.paypal.com"
+        "baseURL": "https://api-m.sandbox.paypal.com"
       },
       "nvp": {
         "baseURL": "https://api-3t.sandbox.paypal.com/nvp"
